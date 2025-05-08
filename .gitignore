@@ -12,3 +12,6 @@ wheels/
 
 #Pycharm
 /.idea/
+
+#БД
+*.db
