@@ -14,3 +14,5 @@ dependencies = [
 [build-system]
 requires = ["setuptools==75.8.0"]
 build-backend = "setuptools.build_meta"
+[project.scripts]
+notes_app = "notes_app.__main__:app"
