@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, Integer, String
+from sqlalchemy import create_engine, Integer, String, select
 from sqlalchemy.orm import (
     sessionmaker, declarative_base, Mapped, mapped_column, Session
 )
@@ -32,15 +32,15 @@ def create_note(db: Session, head: str, body: str):
 
 
 def get_note(db: Session, note_id: int):
-    return db.query(Note).filter(Note.id == note_id).first()
+    return db.scalars(select(Note).filter_by(id=note_id).limit(1)).first()
 
 
 def get_notes(db: Session):
-    return db.query(Note).all()
+    return db.scalars(select(Note)).all()
 
 
 def delete_note(db: Session, note_id: int):
-    note = db.query(Note).filter(Note.id == note_id).first()
+    note = db.scalars(select(Note).filter_by(id=note_id).limit(1)).first()
     if note:
         db.delete(note)
         db.commit()
