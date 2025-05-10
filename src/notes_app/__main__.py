@@ -1,8 +1,7 @@
 import typer
 
-from notes_app import database
-from notes_app.database import current_session
-from notes_app.schemas import Note as NotePydantic
+from notes_app.database import current_session, NoteRepo, Note
+from notes_app.schemas import NotePydantic
 
 app = typer.Typer()
 
