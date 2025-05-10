@@ -21,24 +21,25 @@ class Note(Base):
     body: Mapped[str | None] = mapped_column(String)
 
 
-def create_note(db: Session, head: str, body: str):
-    new_note = Note(head=head, body=body)
-    db.add(new_note)
-    db.commit()
-    db.refresh(new_note)
-    return new_note
+class NoteRepo:
+    def __init__(self, session: Session) -> None:
+        self._session = session
 
+    def add_note(self, note: Note) -> None:
+        self._session.add(note)
 
-def get_note(db: Session, note_id: int):
-    return db.scalars(select(Note).filter_by(id=note_id).limit(1)).first()
+    def get_note(self, note_id: int) -> Note:
+        note: Note = self._session.scalars(
+            select(Note).filter_by(id=note_id).limit(1)).first()
+        return note
 
+    def get_notes(self) -> list[Note]:
+        notes: list[Note] = list(self._session.scalars(select(Note)))
+        return notes
 
-def get_notes(db: Session):
-    return db.scalars(select(Note)).all()
-
-
-def delete_note(db: Session, note_id: int):
-    note = db.scalars(select(Note).filter_by(id=note_id).limit(1)).first()
-    if note:
-        db.delete(note)
-        db.commit()
+    def delete_note(self, note_id: int):
+        note = self._session.scalars(
+            select(Note).filter_by(id=note_id).limit(1)).first()
+        if note:
+            self._session.delete(note)
+            self._session.commit()
