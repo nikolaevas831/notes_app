@@ -30,17 +30,17 @@ class NoteRepo:
         self._session.add(note)
 
     def get_note(self, note_id: int) -> Note:
-        note: Note = self._session.scalars(
-            select(Note).filter_by(id=note_id).limit(1)).first()
+        stmt = select(Note).filter_by(id=note_id).limit(1)
+        note: Note = self._session.scalars(stmt).first()
         return note
 
     def get_notes(self) -> list[Note]:
-        notes: list[Note] = list(self._session.scalars(select(Note)))
+        stmt = select(Note)
+        notes: list[Note] = list(self._session.scalars(stmt))
         return notes
 
     def delete_note(self, note_id: int):
-        note = self._session.scalars(
-            select(Note).filter_by(id=note_id).limit(1)).first()
+        stmt = select(Note).filter_by(id=note_id).limit(1)
+        note = self._session.scalars(stmt).first()
         if note:
             self._session.delete(note)
-            self._session.commit()
