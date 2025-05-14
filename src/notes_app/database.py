@@ -44,3 +44,23 @@ class NoteRepo:
         note = self._session.scalars(stmt).first()
         if note:
             self._session.delete(note)
+
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str]
+    password: Mapped[str]
+
+
+class UserRepo:
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def add_user(self, user: User):
+        self._session.add(user)
+
+    def get_user(self, user_id: int):
+        stmt = select(User).filter_by(id=user_id).limit(1)
+        user = self._session.scalars(stmt).first()
+        return user
