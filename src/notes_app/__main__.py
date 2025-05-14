@@ -1,9 +1,29 @@
 from fastapi import FastAPI, HTTPException
+from passlib.context import CryptContext
 
-from notes_app.database import current_session, NoteRepo, Note
-from notes_app.schemas import NotePydantic
+from notes_app.database import current_session, NoteRepo, Note, UserRepo, User
+from notes_app.schemas import NotePydantic, UserPydantic
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
+
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+@app.post("/create-user")
+def create_user(user_data: UserPydantic):
+    with current_session() as session:
+        user_repo = UserRepo(session)
+        user = user_repo.get_user(username=user_data.username)
+        if user:
+            raise HTTPException(status_code=409)
+        hashed_password = get_password_hash(user_data.password)
+        user = User(username=user_data.username, password=hashed_password)
+        user_repo.add_user(user)
+        session.commit()
 
 
 @app.post("/create-note")
