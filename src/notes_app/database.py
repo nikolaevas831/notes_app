@@ -60,7 +60,7 @@ class UserRepo:
     def add_user(self, user: User):
         self._session.add(user)
 
-    def get_user(self, user_id: int):
-        stmt = select(User).filter_by(id=user_id).limit(1)
+    def get_user(self, username: str):
+        stmt = select(User).filter_by(username=username).limit(1)
         user = self._session.scalars(stmt).first()
         return user
