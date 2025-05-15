@@ -1,8 +1,9 @@
 import os
 
-from sqlalchemy import create_engine, Integer, String, select
+from sqlalchemy import create_engine, Integer, String, select, ForeignKey
 from sqlalchemy.orm import (
-    sessionmaker, declarative_base, Mapped, mapped_column, Session
+    sessionmaker, declarative_base, Mapped, mapped_column, Session,
+    relationship
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -20,6 +21,8 @@ class Note(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     head: Mapped[str] = mapped_column(String)
     body: Mapped[str | None] = mapped_column(String)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user: Mapped["User"] = relationship(back_populates="notes")
 
 
 class NoteRepo:
@@ -49,8 +52,9 @@ class NoteRepo:
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] =  mapped_column(String, unique=True)
+    username: Mapped[str] = mapped_column(String, unique=True)
     password: Mapped[str]
+    notes: Mapped[list["Note"]] = relationship(back_populates="user")
 
 
 class UserRepo:
