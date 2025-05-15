@@ -147,6 +147,8 @@ def list_notes(note_repo: Annotated[NoteRepo, Depends(get_note_repo)],
         notes]
     return pydantic_notes
 
+def main():
+    uvicorn.run("notes_app.__main__:app",reload=True)
 
 if __name__ == "__main__":
-    uvicorn.run(app)
+    main()
