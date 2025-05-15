@@ -1,14 +1,25 @@
+import os
+from datetime import timedelta, timezone, datetime
 from typing import Annotated
 
+import jwt
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.params import Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from jwt import InvalidTokenError
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
 from notes_app.database import current_session, NoteRepo, Note, UserRepo, User
 from notes_app.schemas import NotePydantic, UserPydantic
 
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 app = FastAPI()
 
@@ -19,6 +30,30 @@ def get_password_hash(password: str) -> str:
 
 def verify_password(form_data_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(form_data_password, hashed_password)
+
+
+def create_access_token(user_data: dict, expires_delta: timedelta):
+    copied_user_data = user_data.copy()
+    expire = datetime.now(timezone.utc) + expires_delta
+    copied_user_data.update({"exp": expire})
+    encoded_jwt = jwt.encode(copied_user_data, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
+                     user_repo: Annotated[
+                         UserRepo, Depends(get_user_repo)], ) -> User:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401)
+    except InvalidTokenError:
+        raise HTTPException(status_code=401)
+    user = user_repo.get_user(username=username)
+    if user is None:
+        raise HTTPException(status_code=401)
+    return user
 
 
 @app.post("/create-user")
