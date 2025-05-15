@@ -29,6 +29,9 @@ class NoteRepo:
     def __init__(self, session: Session) -> None:
         self._session = session
 
+    def commit(self):
+        self._session.commit()
+
     def add_note(self, note: Note) -> None:
         self._session.add(note)
 
@@ -60,6 +63,9 @@ class User(Base):
 class UserRepo:
     def __init__(self, session: Session) -> None:
         self._session = session
+
+    def commit(self):
+        self._session.commit()
 
     def add_user(self, user: User):
         self._session.add(user)
