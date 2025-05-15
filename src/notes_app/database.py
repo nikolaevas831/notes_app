@@ -36,17 +36,17 @@ class NoteRepo:
         self._session.add(note)
 
     def get_note(self, note_id: int) -> Note:
-        stmt = select(Note).filter_by(id=note_id).limit(1)
+        stmt = select(Note).where(Note.id == note_id)
         note: Note = self._session.scalars(stmt).first()
         return note
 
-    def get_notes(self) -> list[Note]:
-        stmt = select(Note)
+    def get_notes(self, user_id) -> list[Note]:
+        stmt = select(Note).where(Note.user_id == user_id)
         notes: list[Note] = list(self._session.scalars(stmt))
         return notes
 
     def delete_note(self, note_id: int):
-        stmt = select(Note).filter_by(id=note_id).limit(1)
+        stmt = select(Note).where(Note.id == note_id).limit(1)
         note = self._session.scalars(stmt).first()
         if note:
             self._session.delete(note)
@@ -71,6 +71,7 @@ class UserRepo:
         self._session.add(user)
 
     def get_user(self, username: str):
-        stmt = select(User).filter_by(username=username).limit(1)
+        stmt = select(User).where(User.username == username)
         user = self._session.scalars(stmt).first()
         return user
+
