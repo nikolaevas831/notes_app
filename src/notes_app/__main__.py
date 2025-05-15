@@ -126,4 +126,4 @@ def list_notes() -> list[NotePydantic]:
 
 
 if __name__ == "__main__":
-    app()
+    uvicorn.run(app)
