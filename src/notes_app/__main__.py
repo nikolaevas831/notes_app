@@ -24,6 +24,21 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 app = FastAPI()
 
 
+def get_session():
+    with current_session() as session:
+        yield session
+
+
+def get_note_repo(session: Annotated[Session, Depends(get_session)]):
+    note_repo = NoteRepo(session=session)
+    return note_repo
+
+
+def get_user_repo(session: Annotated[Session, Depends(get_session)]):
+    user_repo = UserRepo(session=session)
+    return user_repo
+
+
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -57,72 +72,80 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 @app.post("/create-user")
-def create_user(user_data: UserPydantic):
-    with current_session() as session:
-        user_repo = UserRepo(session)
-        username_check = user_repo.get_user(username=user_data.username)
-        if username_check:
-            raise HTTPException(status_code=409)
-        hashed_password = get_password_hash(user_data.password)
-        user = User(username=user_data.username, password=hashed_password)
-        user_repo.add_user(user)
-        session.commit()
+def create_user(user_data: UserPydantic,
+                user_repo: Annotated[UserRepo, Depends(get_user_repo)]):
+    username_check = user_repo.get_user(username=user_data.username)
+    if username_check:
+        raise HTTPException(status_code=409)
+    hashed_password = get_password_hash(user_data.password)
+    user = User(username=user_data.username, password=hashed_password)
+    user_repo.add_user(user)
+    user_repo.commit()
 
 
-@app.post("/token")
-def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    with current_session() as session:
-        user_repo = UserRepo(session)
-        user = user_repo.get_user(username=form_data.username)
-        if not user:
-            raise HTTPException(status_code=400, detail="Username not found")
-        elif not verify_password(form_data.password, user.password):
-            raise HTTPException(status_code=400, detail="Incorrect password")
-        return {"access_token": user.username}
+@app.post("/login")
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+          user_repo: Annotated[UserRepo, Depends(get_user_repo)]):
+    user = user_repo.get_user(username=form_data.username)
+    if not user:
+        raise HTTPException(status_code=400, detail="Username not found")
+    elif not verify_password(form_data.password, user.password):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(user_data={"sub": user.username},
+                                       expires_delta=access_token_expires)
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @app.post("/create-note")
-def create_note(head: str, body: str):
-    with current_session() as session:
-        note_repo = NoteRepo(session)
-        note = Note(head=head, body=body)
-        note_repo.add_note(note)
-        session.commit()
+def create_note(head: str, body: str,
+                note_repo: Annotated[NoteRepo, Depends(get_note_repo)],
+                current_user: Annotated[User, Depends(get_current_user)]):
+    note = Note(head=head, body=body, user_id=current_user.id)
+    note_repo.add_note(note)
+    note_repo.commit()
 
 
-@app.post("/delete-note")
-def delete_note(note_id: int) -> None:
-    with current_session() as session:
-        note_repo = NoteRepo(session)
-        note_repo.delete_note(note_id=note_id)
-        session.commit()
+@app.delete("/delete-note")
+def delete_note(note_id: int,
+                note_repo: Annotated[NoteRepo, Depends(get_note_repo)],
+                current_user: Annotated[
+                    User, Depends(get_current_user)], ) -> None:
+    note = note_repo.get_note(note_id=note_id)
+    if not note:
+        raise HTTPException(status_code=404, detail="Заметка не найдена")
+    if note.user_id != current_user.id:
+        raise HTTPException(status_code=403)
+    note_repo.delete_note(note_id=note_id)
+    note_repo.commit()
 
 
 @app.get("/read-note")
-def read_note(note_id: int) -> NotePydantic:
-    with current_session() as session:
-        note_repo = NoteRepo(session)
-        note = note_repo.get_note(note_id=note_id)
-        if not note:
-            raise HTTPException(status_code=404, detail="Заметка не найдена")
-        else:
-            note = NotePydantic(id=note.id, head=note.head,
-                                body=note.body).model_dump()
-            return note
+def read_note(note_id: int,
+              note_repo: Annotated[NoteRepo, Depends(get_note_repo)],
+              current_user: Annotated[
+                  User, Depends(get_current_user)], ) -> dict:
+    note = note_repo.get_note(note_id=note_id)
+    if not note:
+        raise HTTPException(status_code=404, detail="Заметка не найдена")
+    if note.user_id != current_user.id:
+        raise HTTPException(status_code=403)
+    note = NotePydantic(id=note.id, head=note.head,
+                        body=note.body,user_id=note.user_id).model_dump()
+    return note
 
 
 @app.get("/list-notes")
-def list_notes() -> list[NotePydantic]:
-    with current_session() as session:
-        note_repo = NoteRepo(session)
-        notes = note_repo.get_notes()
-        if not notes:
-            raise HTTPException(status_code=404, detail="Заметки не найдены")
-        else:
-            pydantic_notes = [
-                NotePydantic(id=n.id, head=n.head, body=n.body).model_dump()
-                for n in notes]
-            return pydantic_notes
+def list_notes(note_repo: Annotated[NoteRepo, Depends(get_note_repo)],
+               current_user: Annotated[User, Depends(get_current_user)], ) -> \
+        list[dict]:
+    notes = note_repo.get_notes(user_id=current_user.id)
+    if not notes:
+        raise HTTPException(status_code=404, detail="Заметки не найдены")
+    pydantic_notes = [
+        NotePydantic(id=n.id, head=n.head, body=n.body,user_id=n.user_id).model_dump() for n in
+        notes]
+    return pydantic_notes
 
 
 if __name__ == "__main__":
