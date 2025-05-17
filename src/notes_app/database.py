@@ -2,8 +2,7 @@ import os
 
 from sqlalchemy import create_engine, Integer, String, select, ForeignKey
 from sqlalchemy.orm import (
-    sessionmaker, declarative_base, Mapped, mapped_column, Session,
-    relationship
+    sessionmaker, Mapped, mapped_column, Session, relationship, DeclarativeBase
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -13,7 +12,9 @@ engine = create_engine(DATABASE_URL)
 current_session = sessionmaker(autocommit=False, autoflush=False,
                                expire_on_commit=False, bind=engine)
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Note(Base):
@@ -28,9 +29,6 @@ class Note(Base):
 class NoteRepo:
     def __init__(self, session: Session) -> None:
         self._session = session
-
-    def commit(self):
-        self._session.commit()
 
     def add_note(self, note: Note) -> None:
         self._session.add(note)
@@ -64,14 +62,15 @@ class UserRepo:
     def __init__(self, session: Session) -> None:
         self._session = session
 
-    def commit(self):
-        self._session.commit()
-
-    def add_user(self, user: User):
+    def add_user(self, user: User) -> None:
         self._session.add(user)
 
-    def get_user(self, username: str):
-        stmt = select(User).where(User.username == username)
+    def get_user_by_user_id(self, user_id: int) -> User | None:
+        stmt = select(User).where(User.id == user_id)
         user = self._session.scalars(stmt).first()
         return user
 
+    def get_user_by_username(self, username: str) -> User | None:
+        stmt = select(User).where(User.username == username)
+        user = self._session.scalars(stmt).first()
+        return user
