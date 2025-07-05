@@ -1,0 +1,25 @@
+line-length = 100
+target-version = "py313"
+
+src = ["notes_app"]
+
+extend-select = [
+  "E", "F", "I", "N", "UP", "ANN", "B", "A", "C4", "SIM", "RET", "PL", "RUF"
+]
+
+ignore = [
+  "ANN101", "ANN102", "D100", "D101", "D102", "D103", "PLR0913", "PLR2004"
+]
+
+[isort]
+known-first-party = ["notes_app"]
+combine-as-imports = true
+force-sort-within-sections = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = 88
