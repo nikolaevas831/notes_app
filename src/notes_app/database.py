@@ -1,16 +1,24 @@
+import asyncio
 import os
 
-from sqlalchemy import create_engine, Integer, String, select, ForeignKey
+from sqlalchemy import ForeignKey, Integer, String, select
+from sqlalchemy.ext.asyncio import (
+    create_async_engine, async_sessionmaker, AsyncSession
+)
 from sqlalchemy.orm import (
-    sessionmaker, Mapped, mapped_column, Session, relationship, DeclarativeBase
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+    relationship,
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL)
+engine = create_async_engine(DATABASE_URL)
 
-current_session = sessionmaker(autocommit=False, autoflush=False,
-                               expire_on_commit=False, bind=engine)
+current_session = async_sessionmaker(
+    autocommit=False, autoflush=False, expire_on_commit=False, bind=engine
+)
 
 
 class Base(DeclarativeBase):
@@ -27,27 +35,30 @@ class Note(Base):
 
 
 class NoteRepo:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    def add_note(self, note: Note) -> None:
+    async def add_note(self, note: Note) -> None:
         self._session.add(note)
 
-    def get_note(self, note_id: int) -> Note:
+    async def get_note(self, note_id: int) -> Note| None:
         stmt = select(Note).where(Note.id == note_id)
-        note: Note = self._session.scalars(stmt).first()
+        result = await self._session.scalars(stmt)
+        note: Note = result.first()
         return note
 
-    def get_notes(self, user_id) -> list[Note]:
+    async def get_notes(self, user_id) -> list[Note]:
         stmt = select(Note).where(Note.user_id == user_id)
-        notes: list[Note] = list(self._session.scalars(stmt))
+        result = await self._session.scalars(stmt)
+        notes: list[Note] =  list(result)
         return notes
 
-    def delete_note(self, note_id: int):
+    async def delete_note(self, note_id: int) -> None:
         stmt = select(Note).where(Note.id == note_id).limit(1)
-        note = self._session.scalars(stmt).first()
+        result = await self._session.scalars(stmt)
+        note = result.first()
         if note:
-            self._session.delete(note)
+            await self._session.delete(note)
 
 
 class User(Base):
@@ -59,18 +70,20 @@ class User(Base):
 
 
 class UserRepo:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    def add_user(self, user: User) -> None:
+    async def add_user(self, user: User) -> None:
         self._session.add(user)
 
-    def get_user_by_user_id(self, user_id: int) -> User | None:
+    async def get_user_by_user_id(self, user_id: int) -> User | None:
         stmt = select(User).where(User.id == user_id)
-        user = self._session.scalars(stmt).first()
+        result = await self._session.scalars(stmt)
+        user = result.first()
         return user
 
-    def get_user_by_username(self, username: str) -> User | None:
+    async def get_user_by_username(self, username: str) -> User | None:
         stmt = select(User).where(User.username == username)
-        user = self._session.scalars(stmt).first()
+        result = await self._session.scalars(stmt)
+        user = result.first()
         return user
