@@ -7,6 +7,10 @@ class NotePydantic(BaseModel):
     body: str
     user_id: int
 
+class NoteCreateSchema(BaseModel):
+    head: str
+    body: str
+
 class UserPydantic(BaseModel):
     username: str
     password: str
