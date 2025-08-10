@@ -23,6 +23,11 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   init-topics:
     image: confluentinc/cp-kafka:7.4.0
@@ -43,7 +48,8 @@ services:
     build:
       context: .
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     env_file:
       - .env
     ports:
