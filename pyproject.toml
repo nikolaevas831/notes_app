@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.115.12",
     "httpx>=0.28.1",
     "passlib[bcrypt]>=1.7.4",
+    "pydantic-settings>=2.10.1",
     "pyjwt>=2.10.1",
     "python-multipart>=0.0.20",
     "sqlalchemy>=2.0.40",
@@ -28,3 +29,7 @@ lint = [
 ]
 [project.scripts]
 notes_app = "notes_app.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["alembic", "alembic.*"]
