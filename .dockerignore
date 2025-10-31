@@ -2,7 +2,12 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.venv/
+#.venv/
 .env
 .git/
 .idea/
+
+
+# Redis
+redisdata/
+*.rdb

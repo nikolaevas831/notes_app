@@ -1,3 +1,4 @@
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+ASYNC_DATABASE_URL = os.getenv("ASYNC_DATABASE_URL")
+SYNC_DATABASE_URL = os.getenv("SYNC_DATABASE_URL")

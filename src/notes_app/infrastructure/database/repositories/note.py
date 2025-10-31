@@ -1,7 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
-from notes_app.application.interfaces.note_repo import NoteRepoInterface
+from notes_app.application.interfaces.note_repo import NoteRepoInterface, SyncNoteRepoInterface
 from notes_app.infrastructure.database.mappers.note import NoteMapper
 from notes_app.infrastructure.database.models.note import Note
 from notes_app.domain.entities.note import Note as NoteEntity
@@ -36,6 +37,14 @@ class NoteRepo(NoteRepoInterface):
         result = await self._session.scalars(stmt)
         note = result.first()
         if note:
-            await self._session.delete(note)  # без await
+            await self._session.delete(note)
             return NoteMapper.map_note_orm_to_entity(note)
         return None
+
+
+class SyncNoteRepo(SyncNoteRepoInterface):
+    def __init__(self, session: Session):
+        self._session = session
+
+    def delete_all_notes(self) -> None:
+        self._session.query(Note).delete()

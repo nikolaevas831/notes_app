@@ -2,16 +2,17 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
+RUN pip install --no-cache-dir uv
+
 COPY pyproject.toml .
 COPY uv.lock .
+
+RUN uv sync --no-install-project
+
 COPY src/ ./src/
 COPY alembic/ ./alembic/
 COPY alembic.ini .
 
-
-RUN pip install uv
-RUN uv sync
+RUN uv sync --no-editable
 
 ENV PATH="/app/.venv/bin:$PATH"
-
-CMD ["sh", "-c", "alembic upgrade head && uv run notes_app"]

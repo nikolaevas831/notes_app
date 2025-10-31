@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config, pool
 
 from src.notes_app.infrastructure.database.main import Base
 
-DATABASE_URL = os.getenv("MIGRATION_DATABASE_URL")
+DATABASE_URL = os.getenv("SYNC_DATABASE_URL")
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

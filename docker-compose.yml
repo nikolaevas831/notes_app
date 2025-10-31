@@ -32,7 +32,8 @@ services:
   init-topics:
     image: confluentinc/cp-kafka:7.4.0
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     entrypoint: ["/bin/bash", "-c"]
     command: |
       "
@@ -43,6 +44,18 @@ services:
       echo -e 'Successfully created the following topics:'
       /usr/bin/kafka-topics --bootstrap-server kafka:9092 --list
       "      
+  alembic_migration:
+    build:
+      context: .
+    env_file:
+      - .env
+    command: >
+      sh -c "alembic upgrade head"
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 
   notes-app:
     build:
@@ -50,7 +63,48 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      alembic_migration:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    command: >
+      sh -c "uv run notes_app"
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: redis:latest
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     env_file:
       - .env
     ports:
-      - "8000:8000"
+      - "6380:6379"
+    volumes:
+      - ./redisdata:/data
+
+  celery_worker:
+    build:
+      context: .
+    env_file:
+      - .env
+    command: celery -A notes_app.infrastructure.celery.celery_app worker --loglevel=info
+    depends_on:
+      redis:
+        condition: service_started
+      alembic_migration:
+        condition: service_completed_successfully
+
+  celery_beat:
+    build:
+      context: .
+    env_file:
+      - .env
+    command: celery -A notes_app.infrastructure.celery.celery_app beat --loglevel=info
+    depends_on:
+      redis:
+        condition: service_started
+      alembic_migration:
+        condition: service_completed_successfully
+
+volumes:
+  postgres_data:

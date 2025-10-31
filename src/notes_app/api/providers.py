@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from notes_app.infrastructure.auth.jwt_token_service import JwtTokenService
 from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherService
-from notes_app.infrastructure.database.main import current_session
+from notes_app.infrastructure.database.main import async_current_session
 from notes_app.infrastructure.database.repositories.note import NoteRepo
 from notes_app.infrastructure.database.repositories.user import UserRepo
 from notes_app.infrastructure.database.models.user import User
@@ -29,7 +29,7 @@ async def get_hasher_service() -> PasslibHasherService:
 
 
 async def get_db_session():
-    async with current_session() as session:
+    async with async_current_session() as session:
         yield session
 
 

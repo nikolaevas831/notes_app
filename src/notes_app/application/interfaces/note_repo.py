@@ -20,3 +20,8 @@ class NoteRepoInterface(abc.ABC):
     @abc.abstractmethod
     async def delete_note(self, note_id: int) -> Note | None:
         pass
+
+class SyncNoteRepoInterface(abc.ABC):
+    @abc.abstractmethod
+    def delete_all_notes(self):
+        pass
