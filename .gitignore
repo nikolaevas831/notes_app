@@ -15,3 +15,7 @@ wheels/
 
 #БД
 *.db
+
+# Redis
+redisdata/
+*.rdb
