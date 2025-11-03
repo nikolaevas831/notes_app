@@ -1,13 +1,9 @@
-version: '3.8'
-
 services:
 
   postgres:
     image: postgres:13.3
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     ports:
       - "5433:5432"
     volumes:
@@ -64,9 +60,8 @@ services:
   alembic_migration:
     build:
       context: .
-    environment:
-      ASYNC_DATABASE_URL: ${ASYNC_DATABASE_URL}
-      SYNC_DATABASE_URL: ${SYNC_DATABASE_URL}
+    env_file:
+      - .env
     command: >
       sh -c "alembic upgrade head"
     restart: "no"
@@ -83,19 +78,8 @@ services:
         condition: service_healthy
       alembic_migration:
         condition: service_completed_successfully
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      ASYNC_DATABASE_URL: ${ASYNC_DATABASE_URL}
-      SYNC_DATABASE_URL: ${SYNC_DATABASE_URL}
-      AUTH_JWT_SECRET_KEY: ${AUTH_JWT_SECRET_KEY}
-      AUTH_JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM}
-      AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: ${AUTH_ACCESS_TOKEN_EXPIRE_MINUTES}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-      UVICORN_FASTAPI_HOST: ${UVICORN_FASTAPI_HOST}
-      UVICORN_FASTAPI_PORT: ${UVICORN_FASTAPI_PORT}
+    env_file:
+      - .env
     command: >
       sh -c "uv run notes_app"
     ports:
@@ -104,32 +88,18 @@ services:
   redis:
     image: redis:latest
     command: redis-server --requirepass ${REDIS_PASSWORD}
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      REDIS_USER: ${REDIS_USER}
-      REDIS_USER_PASSWORD: ${REDIS_USER_PASSWORD}
-      REDIS_PORT: ${REDIS_PORT}
+    env_file:
+      - .env
     ports:
       - "6380:6379"
     volumes:
-      - ./redis_data:/data
+      - redis_data:/data
 
   celery_worker:
     build:
       context: .
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      ASYNC_DATABASE_URL: ${ASYNC_DATABASE_URL}
-      SYNC_DATABASE_URL: ${SYNC_DATABASE_URL}
-      AUTH_JWT_SECRET_KEY: ${AUTH_JWT_SECRET_KEY}
-      AUTH_JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM}
-      AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: ${AUTH_ACCESS_TOKEN_EXPIRE_MINUTES}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-      UVICORN_FASTAPI_HOST: ${UVICORN_FASTAPI_HOST}
-      UVICORN_FASTAPI_PORT: ${UVICORN_FASTAPI_PORT}
+    env_file:
+      - .env
     command: celery -A notes_app.infrastructure.celery.celery_app worker --loglevel=info
     depends_on:
       redis:
@@ -140,19 +110,8 @@ services:
   celery_beat:
     build:
       context: .
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      ASYNC_DATABASE_URL: ${ASYNC_DATABASE_URL}
-      SYNC_DATABASE_URL: ${SYNC_DATABASE_URL}
-      AUTH_JWT_SECRET_KEY: ${AUTH_JWT_SECRET_KEY}
-      AUTH_JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM}
-      AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: ${AUTH_ACCESS_TOKEN_EXPIRE_MINUTES}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-      UVICORN_FASTAPI_HOST: ${UVICORN_FASTAPI_HOST}
-      UVICORN_FASTAPI_PORT: ${UVICORN_FASTAPI_PORT}
+    env_file:
+      - .env
     command: celery -A notes_app.infrastructure.celery.celery_app beat --loglevel=info
     depends_on:
       redis:
