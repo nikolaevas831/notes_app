@@ -1,4 +1,3 @@
-
 from notes_app.application.usecases.note import delete_all_notes
 from notes_app.infrastructure.celery.celery_app import celery_app
 from notes_app.infrastructure.database.main import sync_current_session

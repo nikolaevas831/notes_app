@@ -1,18 +1,16 @@
 from typing import Annotated
 
 from aiokafka import AIOKafkaProducer
-from fastapi import HTTPException, Depends, Request
+from fastapi import Depends, HTTPException, Request
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from notes_app.infrastructure.auth.jwt_token_service import JwtTokenService
 from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherService
 from notes_app.infrastructure.database.main import async_current_session
+from notes_app.infrastructure.database.models.user import User
 from notes_app.infrastructure.database.repositories.note import NoteRepo
 from notes_app.infrastructure.database.repositories.user import UserRepo
-from notes_app.infrastructure.database.models.user import User
-
-from fastapi.security import OAuth2PasswordBearer
-
 from notes_app.infrastructure.database.tx_manager import TxManager
 from notes_app.infrastructure.kafka.config import kafka_settings
 from notes_app.infrastructure.kafka.notifier import Notifier
@@ -47,8 +45,8 @@ async def get_current_user(
 ) -> User:
     try:
         user_id = token_service.decode_token(token)
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception as err:
+        raise HTTPException(status_code=401, detail="Invalid credentials") from err
     user = await user_repo.get_user_by_user_id(user_id=user_id)
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")

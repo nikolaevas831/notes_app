@@ -1,11 +1,9 @@
 from notes_app.application.dto.note import NoteDTO
 from notes_app.application.dto.user import UserDTO
-from notes_app.application.exception import NoteNotFoundError, CurrentUserIdError
+from notes_app.application.exception import CurrentUserIdError, NoteNotFoundError
 from notes_app.application.interfaces.note_repo import NoteRepoInterface, SyncNoteRepoInterface
-
-from notes_app.application.interfaces.txmanager import TxManagerInterface
-
 from notes_app.application.interfaces.notifier import NotifierInterface
+from notes_app.application.interfaces.txmanager import TxManagerInterface
 from notes_app.application.mappers.note import NoteMapper
 from notes_app.domain.entities.note import Note as NoteEntity
 
@@ -61,6 +59,7 @@ async def get_list_notes(
 ) -> list[NoteDTO]:
     notes = await note_repo.get_notes(user_id=current_user.id)
     return [NoteMapper.map_note_entity_to_dto(note) for note in notes]
+
 
 def delete_all_notes(note_repo: SyncNoteRepoInterface) -> None:
     note_repo.delete_all_notes()

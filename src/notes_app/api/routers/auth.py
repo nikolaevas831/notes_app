@@ -1,25 +1,25 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from notes_app.api.models.user import UserSchema, UserResponseSchema
+from notes_app.api.models.user import UserResponseSchema, UserSchema
 from notes_app.api.providers import (
-    get_user_repo,
-    get_tx_manager,
     get_hasher_service,
     get_token_service,
+    get_tx_manager,
+    get_user_repo,
+)
+from notes_app.application.exception import (
+    InvalidCredentialsError,
+    UsernameAlreadyExistsError,
+    UsernameNotFoundError,
 )
 from notes_app.application.interfaces.hasher import HasherInterface
 from notes_app.application.interfaces.token import TokenInterface
 from notes_app.application.interfaces.txmanager import TxManagerInterface
 from notes_app.application.interfaces.user_repo import UserRepoInterface
 from notes_app.application.usecases.auth import login as application_login
-from notes_app.application.exception import (
-    UsernameAlreadyExistsError,
-    UsernameNotFoundError,
-    InvalidCredentialsError,
-)
 from notes_app.application.usecases.user import create_user as application_create_user
 
 router = APIRouter(prefix="/auth")
@@ -41,8 +41,8 @@ async def register_user(
         )
         user_dict = {"username": user.username}
         return UserResponseSchema(**user_dict)
-    except UsernameAlreadyExistsError:
-        raise HTTPException(status_code=409)
+    except UsernameAlreadyExistsError as err:
+        raise HTTPException(status_code=409) from err
 
 
 @router.post("/token")
@@ -60,7 +60,7 @@ async def login(
             hasher=hasher,
             token_service=token_service,
         )
-    except UsernameNotFoundError:
-        raise HTTPException(status_code=401, detail="Username not found")
-    except InvalidCredentialsError:
-        raise HTTPException(status_code=400, detail="Incorrect password")
+    except UsernameNotFoundError as err:
+        raise HTTPException(status_code=401, detail="Username not found") from err
+    except InvalidCredentialsError as err:
+        raise HTTPException(status_code=400, detail="Incorrect password") from err

@@ -1,6 +1,6 @@
 from notes_app.application.exception import (
-    UsernameNotFoundError,
     InvalidCredentialsError,
+    UsernameNotFoundError,
 )
 from notes_app.application.interfaces.hasher import HasherInterface
 from notes_app.application.interfaces.token import TokenInterface

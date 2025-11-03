@@ -1,7 +1,7 @@
 from notes_app.application.dto.user import UserDTO
+from notes_app.domain.entities.user import User as UserEntity
 from notes_app.infrastructure.database.mappers.note import NoteMapper
 from notes_app.infrastructure.database.models.user import User as UserORM
-from notes_app.domain.entities.user import User as UserEntity
 
 
 class UserMapper:
@@ -14,9 +14,7 @@ class UserMapper:
         )
 
     def map_user_entity_to_orm(user_entity: UserEntity) -> UserORM:
-        return UserORM(
-            username=user_entity.username, password=user_entity.hashed_password
-        )
+        return UserORM(username=user_entity.username, password=user_entity.hashed_password)
 
     def map_user_orm_to_entity(user_orm: UserORM) -> UserEntity:
         return UserEntity(

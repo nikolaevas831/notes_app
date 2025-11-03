@@ -1,0 +1,38 @@
+line-length = 120
+target-version = "py313"
+
+[lint]
+select = [
+    "E", "W", "F",  # Базовые
+    "I",  # Сортировка импортов
+    "B",  # Bugbear
+    "UP",  # Modern Python
+    "RUF",  # Ruff-specific
+    "C90",  # McCabe complexity
+    "FBT",  # Boolean trap
+]
+
+ignore = [
+    "E501",  # Длина строки
+    "B008",  # Function calls in defaults (нужно для FastAPI Depends)
+    "C901",  # Слишком сложная функция
+    "B905",  # zip без strict
+]
+
+[lint.isort]
+known-first-party = ["notes_app"]
+
+[format]
+indent-style = "space"
+quote-style = "double"
+
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "migrations",
+    "alembic",
+    "tests/fixtures",
+]

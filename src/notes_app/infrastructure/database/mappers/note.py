@@ -1,6 +1,6 @@
 from notes_app.application.dto.note import NoteDTO
-from notes_app.infrastructure.database.models.note import Note as NoteORM
 from notes_app.domain.entities.note import Note as NoteEntity
+from notes_app.infrastructure.database.models.note import Note as NoteORM
 
 
 class NoteMapper:

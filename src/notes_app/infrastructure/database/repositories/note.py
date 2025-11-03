@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from notes_app.application.interfaces.note_repo import NoteRepoInterface, SyncNoteRepoInterface
+from notes_app.domain.entities.note import Note as NoteEntity
 from notes_app.infrastructure.database.mappers.note import NoteMapper
 from notes_app.infrastructure.database.models.note import Note
-from notes_app.domain.entities.note import Note as NoteEntity
 
 
 class NoteRepo(NoteRepoInterface):

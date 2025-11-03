@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 import uvicorn
 from aiokafka import AIOKafkaProducer
 from fastapi import FastAPI
-from notes_app.api.routers.note import router as note_router
+
 from notes_app.api.routers.auth import router as auth_router
+from notes_app.api.routers.note import router as note_router
 
 
 @asynccontextmanager

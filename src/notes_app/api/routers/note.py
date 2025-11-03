@@ -1,24 +1,29 @@
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 
 from notes_app.api.models.note import NoteCreateSchema, NoteResponseSchema
 from notes_app.api.providers import (
-    get_note_repo,
     get_current_user,
-    get_tx_manager,
     get_note_created_notifier,
     get_note_deleted_notifier,
+    get_note_repo,
+    get_tx_manager,
 )
-from notes_app.application.exception import NoteNotFoundError, CurrentUserIdError
+from notes_app.application.exception import CurrentUserIdError, NoteNotFoundError
 from notes_app.application.interfaces.note_repo import NoteRepoInterface
 from notes_app.application.interfaces.notifier import NotifierInterface
 from notes_app.application.interfaces.txmanager import TxManagerInterface
 from notes_app.application.usecases.note import (
     create_note as application_create_note,
+)
+from notes_app.application.usecases.note import (
     delete_note as application_delete_note,
-    read_note as application_read_note,
+)
+from notes_app.application.usecases.note import (
     get_list_notes as application_get_list_notes,
+)
+from notes_app.application.usecases.note import (
+    read_note as application_read_note,
 )
 from notes_app.domain.entities.user import User
 
@@ -60,10 +65,10 @@ async def delete_note(
             tx_manager=tx_manager,
             notifier=notifier,
         )
-    except NoteNotFoundError:
-        raise HTTPException(status_code=404, detail="Note not found")
-    except CurrentUserIdError:
-        raise HTTPException(status_code=404)
+    except NoteNotFoundError as err:
+        raise HTTPException(status_code=404, detail="Note not found") from err
+    except CurrentUserIdError as err:
+        raise HTTPException(status_code=404) from err
 
 
 @router.get("/{note_id}", response_model=NoteResponseSchema)
@@ -79,17 +84,15 @@ async def get_note_by_id(
             current_user=current_user,
         )
         return note
-    except NoteNotFoundError:
-        raise HTTPException(status_code=404, detail="Note not found")
-    except CurrentUserIdError:
-        raise HTTPException(status_code=403)
+    except NoteNotFoundError as err:
+        raise HTTPException(status_code=404, detail="Note not found") from err
+    except CurrentUserIdError as err:
+        raise HTTPException(status_code=403) from err
 
 
-@router.get("/", response_model=List[NoteResponseSchema])
+@router.get("/", response_model=list[NoteResponseSchema])
 async def get_notes(
     note_repo: NoteRepoInterface = Depends(get_note_repo),
     current_user: User = Depends(get_current_user),
-) -> List[NoteResponseSchema]:
-    return await application_get_list_notes(
-        note_repo=note_repo, current_user=current_user
-    )
+) -> list[NoteResponseSchema]:
+    return await application_get_list_notes(note_repo=note_repo, current_user=current_user)

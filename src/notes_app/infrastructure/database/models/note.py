@@ -1,7 +1,12 @@
-from sqlalchemy import Integer, String, ForeignKey
+from typing import TYPE_CHECKING
+
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from notes_app.infrastructure.database.main import Base
+
+if TYPE_CHECKING:
+    from .user import User
 
 
 class Note(Base):
