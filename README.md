@@ -10,7 +10,6 @@
     ```bash
     cp .env.example .env
    ```
-Отредактируйте .env при необходимости
 3. **Запустите приложение**
     ```bash
     docker-compose up -d --build
