@@ -1,6 +1,6 @@
 import abc
 
-from notes_app.application.dto.note import CreateNoteDTO, NoteDTO
+from notes_app.application.dto.note import CreateNoteDTO
 from notes_app.domain.entities.note import Note
 
 
