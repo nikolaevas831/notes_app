@@ -1,18 +1,32 @@
-from sqlalchemy import create_engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.ext.asyncio.engine import AsyncEngine
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import Session
 
-from notes_app.infrastructure.config import ASYNC_DATABASE_URL, SYNC_DATABASE_URL
+from notes_app.infrastructure.database.config import DBConfig
 
 
-class Base(DeclarativeBase):
-    pass
+def build_async_engine(db_config: DBConfig) -> AsyncEngine:
+    engine = create_async_engine(url=db_config.async_db_url)
+    return engine
 
 
-async_engine = create_async_engine(ASYNC_DATABASE_URL)
+def build_async_session_factory(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    session_factory = async_sessionmaker(
+        autocommit=False, autoflush=False, expire_on_commit=False, bind=engine
+    )
+    return session_factory
 
-async_current_session = async_sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=async_engine)
 
-sync_engine = create_engine(SYNC_DATABASE_URL)
+def build_sync_engine(db_config: DBConfig) -> Engine:
+    engine = create_engine(url=db_config.sync_db_url)
+    return engine
 
-sync_current_session = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=sync_engine)
+
+def build_sync_session_factory(engine: Engine) -> sessionmaker[Session]:
+    session_factory = sessionmaker(
+        autocommit=False, autoflush=False, expire_on_commit=False, bind=engine
+    )
+    return session_factory
