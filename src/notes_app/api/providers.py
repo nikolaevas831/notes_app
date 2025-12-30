@@ -1,3 +1,4 @@
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from aiokafka import AIOKafkaProducer
@@ -7,27 +8,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from notes_app.infrastructure.auth.jwt_token_service import JwtTokenService
 from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherService
-from notes_app.infrastructure.database.main import async_current_session
 from notes_app.infrastructure.database.models.user import User
 from notes_app.infrastructure.database.repositories.note import NoteRepo
 from notes_app.infrastructure.database.repositories.user import UserRepo
 from notes_app.infrastructure.database.tx_manager import TxManager
-from notes_app.infrastructure.kafka.config import kafka_settings
-from notes_app.infrastructure.kafka.notifier import Notifier
+from notes_app.infrastructure.notifier.notifier import Notifier
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
-async def get_token_service() -> JwtTokenService:
-    return JwtTokenService()
+async def get_token_service(request: Request):
+    return request.app.state.jwt_service
 
 
 async def get_hasher_service() -> PasslibHasherService:
     return PasslibHasherService()
 
 
-async def get_db_session():
-    async with async_current_session() as session:
+async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession]:
+    async_session_factory = request.app.state.db_session_factory
+    async with async_session_factory() as session:
         yield session
 
 
@@ -73,10 +73,10 @@ async def get_kafka_producer(request: Request):
 def get_note_created_notifier(
     producer: AIOKafkaProducer = Depends(get_kafka_producer),
 ) -> Notifier:
-    return Notifier(producer=producer, topic=kafka_settings.note_created_topic)
+    return Notifier(producer=producer)
 
 
 def get_note_deleted_notifier(
     producer: AIOKafkaProducer = Depends(get_kafka_producer),
 ) -> Notifier:
-    return Notifier(producer=producer, topic=kafka_settings.note_deleted_topic)
+    return Notifier(producer=producer)
