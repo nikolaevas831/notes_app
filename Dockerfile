@@ -10,7 +10,6 @@ COPY uv.lock .
 RUN uv sync --no-install-project
 
 COPY src/ ./src/
-COPY alembic/ ./alembic/
 COPY alembic.ini .
 
 RUN uv sync --no-editable
