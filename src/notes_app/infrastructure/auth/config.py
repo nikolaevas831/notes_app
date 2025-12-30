@@ -1,5 +1,8 @@
-import os
+from dataclasses import dataclass
 
-AUTH_JWT_SECRET_KEY = os.getenv("AUTH_JWT_SECRET_KEY")
-AUTH_JWT_ALGORITHM = os.getenv("AUTH_JWT_ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("AUTH_ACCESS_TOKEN_EXPIRE_MINUTES"))
+
+@dataclass(frozen=True)
+class AuthConfig:
+    secret_token: str
+    algorithm: str
+    access_token_expire_minutes: int
