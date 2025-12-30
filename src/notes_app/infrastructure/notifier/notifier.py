@@ -7,11 +7,12 @@ from notes_app.infrastructure.database.models.note import Note
 
 
 class Notifier(NotifierInterface):
-    def __init__(self, producer: AIOKafkaProducer, topic: str):
+    def __init__(self, producer: AIOKafkaProducer):
         self.producer = producer
-        self.topic = topic
+
 
     async def notify_note_created(self, note: Note) -> None:
+        self.topic = "note.created"
         message = json.dumps(
             {
                 "id": note.id,
@@ -23,6 +24,7 @@ class Notifier(NotifierInterface):
         await self.producer.send_and_wait(self.topic, message)
 
     async def notify_note_deleted(self, note: Note) -> None:
+        self.topic = "note.deleted"
         message = json.dumps(
             {
                 "id": note.id,

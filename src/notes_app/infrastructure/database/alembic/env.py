@@ -1,12 +1,12 @@
-import os
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from src.notes_app.infrastructure.database.main import Base
+from notes_app.infrastructure.config import load_config
+from notes_app.infrastructure.database.models.base import Base
 
-DATABASE_URL = os.getenv("SYNC_DATABASE_URL")
+DATABASE_URL = load_config().db.sync_db_url
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

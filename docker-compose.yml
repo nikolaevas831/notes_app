@@ -106,7 +106,7 @@ services:
       context: .
     env_file:
       - .env
-    command: celery -A notes_app.infrastructure.celery.celery_app worker --loglevel=info
+    command: celery -A notes_app.infrastructure.task_scheduler.main worker --loglevel=info
     depends_on:
       redis:
         condition: service_healthy
@@ -118,7 +118,7 @@ services:
       context: .
     env_file:
       - .env
-    command: celery -A notes_app.infrastructure.celery.celery_app beat --loglevel=info
+    command: celery -A notes_app.infrastructure.task_scheduler.main beat --loglevel=info
     depends_on:
       redis:
         condition: service_healthy

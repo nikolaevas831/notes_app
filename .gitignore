@@ -19,3 +19,5 @@ wheels/
 # Redis
 redisdata/
 *.rdb
+hortlog
+.vscode/settings.json
