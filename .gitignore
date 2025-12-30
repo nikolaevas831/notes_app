@@ -10,8 +10,9 @@ wheels/
 .venv
 .env
 
-#Pycharm
+#ide
 /.idea/
+.vscode
 
 #БД
 *.db
@@ -19,5 +20,7 @@ wheels/
 # Redis
 redisdata/
 *.rdb
+
 hortlog
-.vscode/settings.json
+.pytest_cache
+.ruff_cache
