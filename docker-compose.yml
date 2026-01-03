@@ -41,6 +41,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8082:8080
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    depends_on:
+      kafka:
+        condition: service_healthy
 
   init-topics:
     image: confluentinc/cp-kafka:7.5.0
@@ -56,7 +68,7 @@ services:
       /usr/bin/kafka-topics --create --topic note.deleted --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
       echo -e 'Successfully created the following topics:'
       /usr/bin/kafka-topics --bootstrap-server kafka:9092 --list
-      "      
+      "
   alembic_migration:
     build:
       context: .
