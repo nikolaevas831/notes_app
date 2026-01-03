@@ -4,7 +4,7 @@ from notes_app.application.interfaces.hasher import HasherInterface
 
 
 class PasslibHasherService(HasherInterface):
-    def __init__(self):
+    def __init__(self) -> None:
         self.password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
     def hash_password(self, password: str) -> str:

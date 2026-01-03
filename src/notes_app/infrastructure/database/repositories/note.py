@@ -27,7 +27,7 @@ class NoteRepo(NoteRepoInterface):
         note: NoteORM | None = result.first()
         return self._mapper.map_note_orm_to_entity(note) if note else None
 
-    async def get_notes(self, user_id) -> list[NoteEntity]:
+    async def get_notes(self, user_id: int) -> list[NoteEntity]:
         stmt = select(NoteORM).where(NoteORM.user_id == user_id)
         result = await self._session.scalars(stmt)
         notes: list[NoteORM] = list(result)
@@ -44,11 +44,11 @@ class NoteRepo(NoteRepoInterface):
 
 
 class SyncNoteRepo(SyncNoteRepoInterface):
-    def __init__(self, session: Session):
+    def __init__(self, session: Session) -> None:
         self._session = session
         self._mapper = NoteMapper()
 
-    def delete_all_notes(self) -> list[NoteEntity]|None:
+    def delete_all_notes(self) -> list[NoteEntity] | None:
         notes = self._session.query(NoteORM).all()
         if notes:
             mapped_notes = [self._mapper.map_note_orm_to_entity(note) for note in notes]

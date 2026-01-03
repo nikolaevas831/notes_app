@@ -7,7 +7,7 @@ from notes_app.infrastructure.task_scheduler.config import TaskSchedulerConfig
 
 
 class TaskSchedulerService:
-    def __init__(self, task_schedule_config: TaskSchedulerConfig):
+    def __init__(self, task_schedule_config: TaskSchedulerConfig) -> None:
         self.config = task_schedule_config
         self.celery_app = Celery(
             broker=self.config.broker_url,
@@ -16,10 +16,10 @@ class TaskSchedulerService:
         )
         self._configure_celery()
 
-    def autodiscover_tasks(self):
+    def autodiscover_tasks(self) -> None:
         self.celery_app.autodiscover_tasks(["notes_app.infrastructure.task_scheduler"])
 
-    def beat_schedule(self):
+    def beat_schedule(self) -> None:
         self.celery_app.conf.beat_schedule = {
             "delete-notes-task": {
                 "task": "notes_app.infrastructure.task_scheduler.tasks.delete_notes_task",
@@ -27,19 +27,20 @@ class TaskSchedulerService:
             },
         }
 
-    def _configure_celery(self):
+    def _configure_celery(self) -> None:
         self.autodiscover_tasks()
         self.beat_schedule()
 
-    def get_celery_app(self):
+    def get_celery_app(self) -> Celery:
         return self.celery_app
 
 
-def init_celery_service():
+def init_celery_service() -> Celery:
     config = load_config()
     task_scheduler_service = TaskSchedulerService(task_schedule_config=config.task_scheduler)
     celery_app = task_scheduler_service.get_celery_app()
     return celery_app
+
 
 config = load_config()
 db_engine = build_sync_engine(db_config=config.db)

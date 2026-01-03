@@ -17,4 +17,4 @@ class NoteResponseSchema(BaseModel):
     id: int
     user_id: int
     head: str
-    body: str
+    body: str | None

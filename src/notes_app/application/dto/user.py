@@ -7,7 +7,7 @@ from notes_app.application.dto.note import NoteDTO
 class UserDTO:
     id: int
     username: str
-    notes: list[NoteDTO]
+    notes: list[NoteDTO] | None
 
 
 @dataclass

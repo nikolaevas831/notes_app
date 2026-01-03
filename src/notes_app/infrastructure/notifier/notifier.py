@@ -2,16 +2,15 @@ import json
 
 from aiokafka import AIOKafkaProducer
 
+from notes_app.application.dto.note import NoteDTO
 from notes_app.application.interfaces.notifier import NotifierInterface
-from notes_app.infrastructure.database.models.note import Note
 
 
 class Notifier(NotifierInterface):
-    def __init__(self, producer: AIOKafkaProducer):
+    def __init__(self, producer: AIOKafkaProducer) -> None:
         self.producer = producer
 
-
-    async def notify_note_created(self, note: Note) -> None:
+    async def notify_note_created(self, note: NoteDTO) -> None:
         self.topic = "note.created"
         message = json.dumps(
             {
@@ -23,7 +22,7 @@ class Notifier(NotifierInterface):
         ).encode("utf-8")
         await self.producer.send_and_wait(self.topic, message)
 
-    async def notify_note_deleted(self, note: Note) -> None:
+    async def notify_note_deleted(self, note: NoteDTO) -> None:
         self.topic = "note.deleted"
         message = json.dumps(
             {
