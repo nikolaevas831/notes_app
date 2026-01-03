@@ -8,6 +8,7 @@ from notes_app.infrastructure.database.models.base import Base
 if TYPE_CHECKING:
     from .note import Note
 
+
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

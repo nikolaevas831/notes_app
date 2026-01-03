@@ -12,9 +12,11 @@ class UserMapper:
             username=user_orm.username,
             notes=[NoteMapper.map_note_orm_to_dto(note) for note in user_orm.notes],
         )
+
     @staticmethod
     def map_user_entity_to_orm(user_entity: UserEntity) -> UserORM:
         return UserORM(username=user_entity.username, password=user_entity.hashed_password)
+
     @staticmethod
     def map_user_orm_to_entity(user_orm: UserORM) -> UserEntity:
         return UserEntity(
