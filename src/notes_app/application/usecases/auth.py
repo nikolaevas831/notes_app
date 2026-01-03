@@ -16,8 +16,11 @@ async def login(
 ) -> dict[str, str]:
     user_from_repo = await user_repo.get_user_by_username(username=username)
     if not user_from_repo:
-        raise UsernameNotFoundError()
+        raise UsernameNotFoundError
     if not hasher.verify_password(password, user_from_repo.hashed_password):
-        raise InvalidCredentialsError()
+        raise InvalidCredentialsError
+    if user_from_repo.id is None:
+        error_msg = "User must have an ID"
+        raise ValueError(error_msg)
     token = token_service.create_token(user_id=user_from_repo.id)
     return {"access_token": token, "token_type": "bearer"}

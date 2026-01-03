@@ -1,4 +1,4 @@
-from notes_app.application.dto.note import NoteDTO
+from notes_app.application.dto.note import CreateNoteDTO, NoteDTO
 from notes_app.application.dto.user import UserDTO
 from notes_app.application.exception import CurrentUserIdError, NoteNotFoundError
 from notes_app.application.interfaces.note_repo import NoteRepoInterface, SyncNoteRepoInterface
@@ -9,17 +9,16 @@ from notes_app.domain.entities.note import Note as NoteEntity
 
 
 async def create_note(
-    head: str,
-    body: str,
+    note_data: CreateNoteDTO,
     note_repo: NoteRepoInterface,
     current_user: UserDTO,
     tx_manager: TxManagerInterface,
     notifier: NotifierInterface,
 ) -> NoteDTO:
-    note_entity = NoteEntity(head=head, body=body, user_id=current_user.id)
+    note_entity = NoteEntity(head=note_data.head, body=note_data.body, user_id=current_user.id)
     saved_note = await note_repo.add_note(note_entity)
     await tx_manager.commit()
-    await notifier.notify_note_created(note=saved_note)
+    await notifier.notify_note_created(note=NoteMapper.map_note_entity_to_dto(saved_note))
     return NoteMapper.map_note_entity_to_dto(saved_note)
 
 
@@ -37,7 +36,7 @@ async def delete_note(
         raise CurrentUserIdError
     await note_repo.delete_note(note_id)
     await tx_manager.commit()
-    await notifier.notify_note_deleted(note=note)
+    await notifier.notify_note_deleted(note=NoteMapper.map_note_entity_to_dto(note))
 
 
 async def read_note(
