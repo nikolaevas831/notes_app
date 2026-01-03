@@ -1,3 +1,4 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -7,27 +8,28 @@ from fastapi import FastAPI
 from notes_app.api.routers.auth import router as auth_router
 from notes_app.api.routers.note import router as note_router
 from notes_app.infrastructure.auth.jwt_token_service import JwtTokenService
+from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherService
 from notes_app.infrastructure.config import load_config
 from notes_app.infrastructure.database.main import build_async_engine, build_async_session_factory
 
 
-def main():
+def main() -> None:
     config = load_config()
+
     @asynccontextmanager
-    async def lifespan(app: FastAPI):
-        producer = AIOKafkaProducer(bootstrap_servers=config.notifier.bootstrap_servers)
-        db_engine = build_async_engine(db_config=config.db)
-        db_session_factory = build_async_session_factory(engine=db_engine)
-        jwt_token_service = JwtTokenService(auth_config=config.auth)
-        await producer.start()
-        app.state.kafka_producer = producer
-        app.state.db_engine = db_engine
-        app.state.db_session_factory = db_session_factory
-        app.state.jwt_service = jwt_token_service
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
+        app.state.kafka_producer = AIOKafkaProducer(
+            bootstrap_servers=config.notifier.bootstrap_servers
+        )
+        app.state.db_engine = build_async_engine(db_config=config.db)
+        app.state.db_session_factory = build_async_session_factory(engine=app.state.db_engine)
+        app.state.passlib_hasher_service = PasslibHasherService()
+        app.state.jwt_service = JwtTokenService(auth_config=config.auth)
+        await app.state.kafka_producer.start()
         try:
             yield
         finally:
-            await producer.stop()
+            await app.state.kafka_producer.stop()
 
     app = FastAPI(lifespan=lifespan)
     app.include_router(auth_router)

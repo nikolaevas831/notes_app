@@ -6,9 +6,10 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from notes_app.application.dto.user import UserDTO
+from notes_app.application.mappers.user import UserMapper
 from notes_app.infrastructure.auth.jwt_token_service import JwtTokenService
 from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherService
-from notes_app.infrastructure.database.models.user import User
 from notes_app.infrastructure.database.repositories.note import NoteRepo
 from notes_app.infrastructure.database.repositories.user import UserRepo
 from notes_app.infrastructure.database.tx_manager import TxManager
@@ -17,12 +18,12 @@ from notes_app.infrastructure.notifier.notifier import Notifier
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
-async def get_token_service(request: Request):
+async def get_token_service(request: Request) -> JwtTokenService:
     return request.app.state.jwt_service
 
 
-async def get_hasher_service() -> PasslibHasherService:
-    return PasslibHasherService()
+async def get_hasher_service(request: Request) -> PasslibHasherService:
+    return request.app.state.passlib_hasher_service
 
 
 async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession]:
@@ -34,15 +35,14 @@ async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession]:
 async def get_user_repo(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> UserRepo:
-    user_repo = UserRepo(session=session)
-    return user_repo
+    return UserRepo(session=session)
 
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     user_repo: Annotated[UserRepo, Depends(get_user_repo)],
     token_service: Annotated[JwtTokenService, Depends(get_token_service)],
-) -> User:
+) -> UserDTO:
     try:
         user_id = token_service.decode_token(token)
     except Exception as err:
@@ -50,7 +50,7 @@ async def get_current_user(
     user = await user_repo.get_user_by_user_id(user_id=user_id)
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
-    return user
+    return UserMapper.map_user_entity_to_dto(user_entity=user)
 
 
 async def get_tx_manager(
@@ -62,21 +62,14 @@ async def get_tx_manager(
 async def get_note_repo(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> NoteRepo:
-    note_repo = NoteRepo(session=session)
-    return note_repo
+    return NoteRepo(session=session)
 
 
-async def get_kafka_producer(request: Request):
+async def get_kafka_producer(request: Request) -> AIOKafkaProducer:
     return request.app.state.kafka_producer
 
 
-def get_note_created_notifier(
-    producer: AIOKafkaProducer = Depends(get_kafka_producer),
-) -> Notifier:
-    return Notifier(producer=producer)
-
-
-def get_note_deleted_notifier(
-    producer: AIOKafkaProducer = Depends(get_kafka_producer),
+async def get_notifier(
+    producer: Annotated[AIOKafkaProducer, Depends(get_kafka_producer)],
 ) -> Notifier:
     return Notifier(producer=producer)
