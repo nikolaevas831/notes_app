@@ -10,6 +10,7 @@ from notes_app.api.providers import (
     get_tx_manager,
     get_user_repo,
 )
+from notes_app.application.dto.user import CreateUserDTO
 from notes_app.application.exception import (
     InvalidCredentialsError,
     UsernameAlreadyExistsError,
@@ -25,22 +26,22 @@ from notes_app.application.usecases.user import create_user as application_creat
 router = APIRouter(prefix="/auth")
 
 
-@router.post("/register", status_code=201, response_model=UserResponseSchema)
+@router.post("/register", status_code=201)
 async def register_user(
     user_data: UserSchema,
     user_repo: Annotated[UserRepoInterface, Depends(get_user_repo)],
     tx_manager: Annotated[TxManagerInterface, Depends(get_tx_manager)],
     hasher: Annotated[HasherInterface, Depends(get_hasher_service)],
-):
+) -> UserResponseSchema:
     try:
+        user_dto = CreateUserDTO(username=user_data.username, password=user_data.password)
         user = await application_create_user(
-            user_data=user_data,
+            user_data=user_dto,
             user_repo=user_repo,
             tx_manager=tx_manager,
             hasher=hasher,
         )
-        user_dict = {"username": user.username}
-        return UserResponseSchema(**user_dict)
+        return UserResponseSchema(username=user.username)
     except UsernameAlreadyExistsError as err:
         raise HTTPException(status_code=409) from err
 
@@ -51,7 +52,7 @@ async def login(
     user_repo: Annotated[UserRepoInterface, Depends(get_user_repo)],
     hasher: Annotated[HasherInterface, Depends(get_hasher_service)],
     token_service: Annotated[TokenInterface, Depends(get_token_service)],
-):
+) -> dict[str, str]:
     try:
         return await application_login(
             username=form_data.username,
