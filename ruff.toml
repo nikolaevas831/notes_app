@@ -1,38 +1,98 @@
-line-length = 100
 target-version = "py313"
+line-length = 100
+include = [
+    "pyproject.toml",
+    "src/**/*.py",
+    "tests/**/*.py",
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "dist",
+    "src/notes_app/infrastructure/database/alembic"
+]
 
 [lint]
 select = [
-    "E", "W", "F",  # Базовые
-    "I",  # Сортировка импортов
-    "B",  # Bugbear
-    "UP",  # Modern Python
-    "RUF",  # Ruff-specific
-    "C90",  # McCabe complexity
-    "FBT",  # Boolean trap
+    "F",  # Pyflakes
+    "E",  # Pycodestyle Error
+    "W",  # Pycodestyle Warning
+    "C90",  # mccabe
+    "I",  # isort
+    "N",  # pep8-naming
+    "D2",  # pydocstyle
+    "UP",  # pyupgrade
+    "YTT",  # flake8-2020
+    "ANN",  # flake8-annotations
+    "ASYNC",  # flake8-async
+    "S",  # flake8-bandit
+    "BLE",  # flake8-blind-except
+    "FBT",  # flake8-boolean-trap
+    "B",  # flake8-bugbear
+    "A",  # flake8-builtins
+    "COM",  # flake8-commas
+    "C4",  # flake8-comprehensions
+    "DTZ",  # flake8-datetimez
+    "T10",  # flake8-debugger
+    "DJ",  # flake8-django
+    "EM",  # flake8-errmsg
+    "EXE",  # flake8-executable
+    "FA",  # flake8-future-annotations
+    "ISC",  # flake8-implicit-str-concat
+    "ICN",  # flake8-import-conventions
+    "LOG",  # flake8-logging
+    "G",  # flake8-logging-format
+    "INP",  # flake8-no-pep420
+    "PIE",  # flake8-pie
+    "PYI",  # flake8-pyi
+    "PT",  # flake8-pytest-style
+    "Q",  # flake8-quotes
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "SLF",  # flake8-self
+    "SLOT",  # flake8-slots
+    "SIM",  # flake8-simplify
+    "TID",  # flake8-tidy-imports
+    "INT",  # flake8-gettext
+    "PTH",  # flake8-use-pathlib
+    "TD",  # flake8-todos
+    "FIX",  # flake8-fixme
+    "ERA",  # eradicate
+    "PD",  # pandas-vet
+    "PGH",  # pygrep-hooks
+    "PL",  # Pylint
+    "TRY",  # tryceratops
+    "FLY",  # flynt
+    "NPY",  # NumPy-specific rules
+    "FAST",  # FastAPI
+    "AIR",  # Airflow
+    "PERF",  # Perflint
+    "FURB",  # refurb
+    "RUF",  # Ruff-specific rules
 ]
-
 ignore = [
-    "E501",  # Длина строки
-    "B008",  # Function calls in defaults (нужно для FastAPI Depends)
-    "C901",  # Слишком сложная функция
-    "B905",  # zip без strict
+#    "ANN401", # Disallow typing.Any usage
+    "A003", # Python builtin is shadowed by class attribute {name} from {row}
+    "B024", # An abstract base class, but it has no abstract methods
+    "S101", # Use of `assert` detected
+    "RET504", # Unnecessary variable assignment before `return` statement
+    "SIM108", # Use ternary operator instead of if-else-block
+    "TD002", # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
+    "TD003", # Missing issue link on the line following this TODO
+    "FIX002", # Line contains TODO, consider resolving the issue
+    "ISC001", # Implicitly concatenated string literals on one line
+    "COM812", # Explicitly concatenated string should be implicitly concatenated
 ]
 
 [lint.isort]
-known-first-party = ["notes_app"]
+combine-as-imports = true
 
-[format]
-indent-style = "space"
-quote-style = "double"
+[lint.mccabe]
+max-complexity = 12
 
-exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    "build",
-    "dist",
-    "migrations",
-    "alembic",
-    "tests/fixtures",
-]
+[lint.pydocstyle]
+convention = "pep257"
+
+[lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
