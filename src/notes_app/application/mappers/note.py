@@ -14,6 +14,9 @@ class NoteMapper:
 
     @staticmethod
     def map_note_entity_to_dto(note_entity: NoteEntity) -> NoteDTO:
+        if note_entity.id is None:
+            error_msg = "Note entity must have an id"
+            raise ValueError(error_msg)
         return NoteDTO(
             id=note_entity.id,
             head=note_entity.head,
