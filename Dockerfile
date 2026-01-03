@@ -1,8 +1,10 @@
 FROM python:3.13-slim
 
+ENV UV_VERSION="0.6.14"
+
 WORKDIR /app
 
-RUN pip install --no-cache-dir uv
+RUN pip install --no-cache-dir "uv==$UV_VERSION"
 
 COPY pyproject.toml .
 COPY uv.lock .
