@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from notes_app.api.config import APIConfig
 from notes_app.infrastructure.auth.config import AuthConfig
 from notes_app.infrastructure.database.config import DBConfig
+from notes_app.infrastructure.logging.config import LoggingConfig
 from notes_app.infrastructure.notifier.config import NotifierConfig
 from notes_app.infrastructure.task_scheduler.config import TaskSchedulerConfig
 
@@ -15,6 +16,7 @@ class Config:
     task_scheduler: TaskSchedulerConfig
     notifier: NotifierConfig
     api: APIConfig
+    logging: LoggingConfig
 
 
 def load_config() -> Config:
@@ -37,5 +39,8 @@ def load_config() -> Config:
         notifier=NotifierConfig(bootstrap_servers=os.environ["KAFKA_BOOTSTRAP_SERVERS"]),
         api=APIConfig(
             host=os.environ["UVICORN_FASTAPI_HOST"], port=int(os.environ["UVICORN_FASTAPI_PORT"])
+        ),
+        logging=LoggingConfig(
+            level=os.environ["LOG_LEVEL"],
         ),
     )
