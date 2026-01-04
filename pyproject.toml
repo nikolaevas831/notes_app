@@ -20,6 +20,7 @@ dependencies = [
     "python-multipart>=0.0.20",
     "redis>=6.4.0",
     "sqlalchemy>=2.0.40",
+    "structlog>=25.5.0",
     "typer>=0.15.3",
     "uvicorn>=0.34.2",
 ]
