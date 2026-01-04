@@ -5,7 +5,12 @@ from notes_app.application.interfaces.hasher import HasherInterface
 
 class PasslibHasherService(HasherInterface):
     def __init__(self) -> None:
-        self.password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.password_context = CryptContext(
+            schemes=["bcrypt"],
+            bcrypt__rounds=8,
+            bcrypt__ident="2b",
+            deprecated="auto",
+        )
 
     def hash_password(self, password: str) -> str:
         return self.password_context.hash(password)
