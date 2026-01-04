@@ -1,3 +1,4 @@
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -11,10 +12,14 @@ from notes_app.infrastructure.auth.jwt_token_service import JwtTokenService
 from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherService
 from notes_app.infrastructure.config import load_config
 from notes_app.infrastructure.database.main import build_async_engine, build_async_session_factory
+from notes_app.infrastructure.logging.main import setup_logging
+
+logger = logging.getLogger(__name__)
 
 
 def main() -> None:
     config = load_config()
+    setup_logging(config.logging)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
@@ -30,15 +35,18 @@ def main() -> None:
             yield
         finally:
             await app.state.kafka_producer.stop()
+            await app.state.db_engine.dispose()
 
     app = FastAPI(lifespan=lifespan)
     app.include_router(auth_router)
     app.include_router(note_router)
+
     uvicorn.run(
         app=app,
         host=config.api.host,
         port=config.api.port,
         reload=False,
+        log_config=None,
     )
 
 
