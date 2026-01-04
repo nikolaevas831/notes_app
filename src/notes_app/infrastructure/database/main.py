@@ -9,7 +9,7 @@ from notes_app.infrastructure.database.config import DBConfig
 
 
 def build_async_engine(db_config: DBConfig) -> AsyncEngine:
-    engine = create_async_engine(url=db_config.async_db_url)
+    engine = create_async_engine(url=db_config.async_db_url, echo=True, echo_pool=True)
     return engine
 
 
