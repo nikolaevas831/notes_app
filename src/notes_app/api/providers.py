@@ -1,7 +1,6 @@
 from collections.abc import AsyncGenerator
 from typing import Annotated
 
-from aiokafka import AIOKafkaProducer
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -65,11 +64,7 @@ async def get_note_repo(
     return NoteRepo(session=session)
 
 
-async def get_kafka_producer(request: Request) -> AIOKafkaProducer:
-    return request.app.state.kafka_producer
-
-
 async def get_notifier(
-    producer: Annotated[AIOKafkaProducer, Depends(get_kafka_producer)],
+    request: Request,
 ) -> Notifier:
-    return Notifier(producer=producer)
+    return request.app.state.kafka
