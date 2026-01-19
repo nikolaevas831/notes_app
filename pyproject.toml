@@ -11,6 +11,7 @@ dependencies = [
     "bcrypt==4.0.1",
     "celery[asyncio]>=5.5.3",
     "datetime>=5.5",
+    "dishka>=1.7.2",
     "fastapi>=0.115.12",
     "httpx>=0.28.1",
     "passlib[bcrypt]>=1.7.4",
