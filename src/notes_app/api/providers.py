@@ -7,22 +7,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from notes_app.application.dto.user import UserDTO
 from notes_app.application.mappers.user import UserMapper
-from notes_app.infrastructure.auth.jwt_token_service import JwtTokenService
-from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherService
+from notes_app.infrastructure.auth.jwt_token import JwtTokenImpl
+from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherImpl
 from notes_app.infrastructure.database.repositories.note import NoteRepo
 from notes_app.infrastructure.database.repositories.user import UserRepo
-from notes_app.infrastructure.database.tx_manager import TxManager
-from notes_app.infrastructure.notifier.notifier import Notifier
+from notes_app.infrastructure.database.tx_manager import TxManagerImlp
+from notes_app.infrastructure.notifier.main import NotifierImpl
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
-async def get_token_service(request: Request) -> JwtTokenService:
-    return request.app.state.jwt_service
+async def get_token(request: Request) -> JwtTokenImpl:
+    return request.app.state.jwt_token
 
 
-async def get_hasher_service(request: Request) -> PasslibHasherService:
-    return request.app.state.passlib_hasher_service
+async def get_hasher(request: Request) -> PasslibHasherImpl:
+    return request.app.state.passlib_hasher
 
 
 async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession]:
@@ -40,7 +40,7 @@ async def get_user_repo(
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     user_repo: Annotated[UserRepo, Depends(get_user_repo)],
-    token_service: Annotated[JwtTokenService, Depends(get_token_service)],
+    token_service: Annotated[JwtTokenImpl, Depends(get_token)],
 ) -> UserDTO:
     try:
         user_id = token_service.decode_token(token)
@@ -54,8 +54,8 @@ async def get_current_user(
 
 async def get_tx_manager(
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> TxManager:
-    return TxManager(session)
+) -> TxManagerImlp:
+    return TxManagerImlp(session)
 
 
 async def get_note_repo(
@@ -66,5 +66,5 @@ async def get_note_repo(
 
 async def get_notifier(
     request: Request,
-) -> Notifier:
-    return request.app.state.kafka
+) -> NotifierImpl:
+    return request.app.state.notifier

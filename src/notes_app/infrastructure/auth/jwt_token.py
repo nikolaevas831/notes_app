@@ -8,7 +8,7 @@ from notes_app.application.interfaces.token import TokenInterface
 from notes_app.infrastructure.auth.config import AuthConfig
 
 
-class JwtTokenService(TokenInterface):
+class JwtTokenImpl(TokenInterface):
     def __init__(self, auth_config: AuthConfig) -> None:
         self._auth_config = auth_config
 

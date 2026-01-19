@@ -8,7 +8,7 @@ from notes_app.application.interfaces.notifier import NotifierInterface
 from notes_app.infrastructure.notifier.config import NotifierConfig
 
 
-class Notifier(NotifierInterface):
+class NotifierImpl(NotifierInterface):
     TOPIC_NOTE_CREATED: Final[str] = "note.created"
     TOPIC_NOTE_DELETED: Final[str] = "note.deleted"
 

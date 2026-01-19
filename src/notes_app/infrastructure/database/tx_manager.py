@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from notes_app.application.interfaces.txmanager import TxManagerInterface
 
 
-class TxManager(TxManagerInterface):
+class TxManagerImlp(TxManagerInterface):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 

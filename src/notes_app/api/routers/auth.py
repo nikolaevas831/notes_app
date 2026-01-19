@@ -5,8 +5,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from notes_app.api.models.user import UserResponseSchema, UserSchema
 from notes_app.api.providers import (
-    get_hasher_service,
-    get_token_service,
+    get_hasher,
+    get_token,
     get_tx_manager,
     get_user_repo,
 )
@@ -31,7 +31,7 @@ async def register_user(
     user_data: UserSchema,
     user_repo: Annotated[UserRepoInterface, Depends(get_user_repo)],
     tx_manager: Annotated[TxManagerInterface, Depends(get_tx_manager)],
-    hasher: Annotated[HasherInterface, Depends(get_hasher_service)],
+    hasher: Annotated[HasherInterface, Depends(get_hasher)],
 ) -> UserResponseSchema:
     try:
         user_dto = CreateUserDTO(username=user_data.username, password=user_data.password)
@@ -50,8 +50,8 @@ async def register_user(
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_repo: Annotated[UserRepoInterface, Depends(get_user_repo)],
-    hasher: Annotated[HasherInterface, Depends(get_hasher_service)],
-    token_service: Annotated[TokenInterface, Depends(get_token_service)],
+    hasher: Annotated[HasherInterface, Depends(get_hasher)],
+    token_service: Annotated[TokenInterface, Depends(get_token)],
 ) -> dict[str, str]:
     try:
         return await application_login(

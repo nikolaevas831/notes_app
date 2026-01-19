@@ -3,7 +3,7 @@ from passlib.context import CryptContext
 from notes_app.application.interfaces.hasher import HasherInterface
 
 
-class PasslibHasherService(HasherInterface):
+class PasslibHasherImpl(HasherInterface):
     def __init__(self) -> None:
         self.password_context = CryptContext(
             schemes=["bcrypt"],
