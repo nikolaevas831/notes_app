@@ -41,6 +41,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
@@ -111,6 +112,20 @@ services:
       retries: 5
     volumes:
       - redis_data:/data
+
+  redis_ui:
+    image: redis/redisinsight:latest
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDISINSIGHT_HOST=0.0.0.0
+      - REDISINSIGHT_ACCEPT_LICENSE=true
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
 
 
   celery_worker:
