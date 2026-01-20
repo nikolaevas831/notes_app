@@ -26,7 +26,7 @@ def main() -> None:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-        app.state.notifier = NotifierImpl(config=config.notifier)
+        app.state.notifier = NotifierImpl(notifier_config=config.notifier)
         app.state.db_engine = db_connection.async_engine
         app.state.db_session_factory = db_connection.async_session_factory
         app.state.passlib_hasher = PasslibHasherImpl()

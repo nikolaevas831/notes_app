@@ -12,14 +12,14 @@ class NotifierImpl(NotifierInterface):
     TOPIC_NOTE_CREATED: Final[str] = "note.created"
     TOPIC_NOTE_DELETED: Final[str] = "note.deleted"
 
-    def __init__(self, config: NotifierConfig) -> None:
+    def __init__(self, notifier_config: NotifierConfig) -> None:
         self._producer = AIOKafkaProducer(
-            bootstrap_servers=config.bootstrap_servers,
+            bootstrap_servers=notifier_config.bootstrap_servers,
             request_timeout_ms=30000,
             retry_backoff_ms=1000,
             connections_max_idle_ms=600000,
         )
-        self._config = config
+        self._config = notifier_config
 
     async def start(self) -> None:
         await self._producer.start()

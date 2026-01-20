@@ -27,7 +27,9 @@ def load_config() -> Config:
             access_token_expire_minutes=int(os.environ["AUTH_ACCESS_TOKEN_EXPIRE_MINUTES"]),
         ),
         db=DBConfig(
-            database=os.environ["POSTGRES_DB"],
+            database_name=os.environ["POSTGRES_DB"],
+            host=os.environ["POSTGRES_HOST"],
+            port=int(os.environ["POSTGRES_PORT"]),
             user=os.environ["POSTGRES_USER"],
             password=os.environ["POSTGRES_PASSWORD"],
         ),
