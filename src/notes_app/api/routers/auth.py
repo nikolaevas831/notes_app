@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from notes_app.api.models.user import UserResponseSchema, UserSchema
@@ -26,7 +26,7 @@ from notes_app.application.usecases.user import create_user as application_creat
 router = APIRouter(prefix="/auth")
 
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserSchema,
     user_repo: Annotated[UserRepoInterface, Depends(get_user_repo)],
@@ -43,7 +43,7 @@ async def register_user(
         )
         return UserResponseSchema(username=user.username)
     except UsernameAlreadyExistsError as err:
-        raise HTTPException(status_code=409) from err
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT) from err
 
 
 @router.post("/token")
@@ -62,6 +62,10 @@ async def login(
             token_service=token_service,
         )
     except UsernameNotFoundError as err:
-        raise HTTPException(status_code=401, detail="Username not found") from err
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Username not found"
+        ) from err
     except InvalidCredentialsError as err:
-        raise HTTPException(status_code=400, detail="Incorrect password") from err
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password"
+        ) from err

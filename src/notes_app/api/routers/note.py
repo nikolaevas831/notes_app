@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from notes_app.api.models.note import NoteCreateSchema, NoteResponseSchema
 from notes_app.api.providers import (
@@ -25,7 +25,7 @@ from notes_app.application.usecases.note import (
 router = APIRouter(prefix="/notes")
 
 
-@router.post("/", status_code=201)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_note(
     note_data: NoteCreateSchema,
     note_repo: Annotated[NoteRepoInterface, Depends(get_note_repo)],
@@ -44,7 +44,7 @@ async def create_note(
     return NoteResponseSchema(id=note.id, user_id=note.user_id, head=note.head, body=note.body)
 
 
-@router.delete("/{note_id}", status_code=204)
+@router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_note(
     note_id: int,
     note_repo: Annotated[NoteRepoInterface, Depends(get_note_repo)],
@@ -80,9 +80,9 @@ async def get_note_by_id(
         )
 
     except NoteNotFoundError as err:
-        raise HTTPException(status_code=404, detail="Note not found") from err
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Note not found") from err
     except CurrentUserIdError as err:
-        raise HTTPException(status_code=403) from err
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from err
     else:
         return NoteResponseSchema(id=note.id, user_id=note.user_id, head=note.head, body=note.body)
 
