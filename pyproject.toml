@@ -42,7 +42,6 @@ lint = [
 ]
 [project.scripts]
 notes_app = "notes_app.__main__:main"
-notes_app_2 = "notes_app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
