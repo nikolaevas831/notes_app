@@ -31,7 +31,10 @@ build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
+    "faker>=40.1.2",
     "pre-commit==4.3",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
 ]
 lint = [
     "mypy>=1.19.1",
@@ -39,7 +42,12 @@ lint = [
 ]
 [project.scripts]
 notes_app = "notes_app.__main__:main"
+notes_app_2 = "notes_app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["alembic", "alembic.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
