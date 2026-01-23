@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi import FastAPI
@@ -18,12 +18,9 @@ def app(config: Config, async_session_factory: async_sessionmaker) -> FastAPI:
     app.include_router(note_router)
     passlib_hasher = PasslibHasherImpl()
     jwt_token_service = JwtTokenImpl(auth_config=config.auth)
-    notifier = MagicMock()
+    notifier = AsyncMock()
     app.state.db_session_factory = async_session_factory
     app.state.passlib_hasher = passlib_hasher
     app.state.jwt_token = jwt_token_service
     app.state.notifier = notifier
     return app
-
-
-# app.state.notifier = NotifierImpl(notifier_config=config.notifier)  # noqa: ERA001
