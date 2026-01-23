@@ -7,6 +7,7 @@ from notes_app.application.dto.note import NoteDTO
 class UserDTO:
     id: int
     username: str
+    password: str
     notes: list[NoteDTO] | None
 
 
@@ -14,3 +15,9 @@ class UserDTO:
 class CreateUserDTO:
     username: str
     password: str
+
+
+@dataclass
+class LoggedInUserDTO:
+    access_token: str
+    token_type: str

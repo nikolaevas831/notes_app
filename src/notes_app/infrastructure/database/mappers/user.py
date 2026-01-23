@@ -10,6 +10,7 @@ class UserMapper:
         return UserDTO(
             id=user_orm.id,
             username=user_orm.username,
+            password=user_orm.password,
             notes=[NoteMapper.map_note_orm_to_dto(note) for note in user_orm.notes],
         )
 

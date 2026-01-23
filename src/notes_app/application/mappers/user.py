@@ -12,4 +12,9 @@ class UserMapper:
         if user_entity.id is None:
             error_msg = "Cannot map User entity without ID to UserDTO"
             raise ValueError(error_msg)
-        return UserDTO(id=user_entity.id, username=user_entity.username, notes=None)
+        return UserDTO(
+            id=user_entity.id,
+            password=user_entity.hashed_password,
+            username=user_entity.username,
+            notes=None,
+        )

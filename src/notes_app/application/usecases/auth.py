@@ -1,3 +1,4 @@
+from notes_app.application.dto.user import LoggedInUserDTO
 from notes_app.application.exception import (
     InvalidCredentialsError,
     UsernameNotFoundError,
@@ -13,7 +14,7 @@ async def login(
     user_repo: UserRepoInterface,
     hasher: HasherInterface,
     token_service: TokenInterface,
-) -> dict[str, str]:
+) -> LoggedInUserDTO:
     user_from_repo = await user_repo.get_user_by_username(username=username)
     if not user_from_repo:
         raise UsernameNotFoundError
@@ -23,4 +24,4 @@ async def login(
         error_msg = "User must have an ID"
         raise ValueError(error_msg)
     token = token_service.create_token(user_id=user_from_repo.id)
-    return {"access_token": token, "token_type": "bearer"}
+    return LoggedInUserDTO(access_token=token, token_type="bearer")  # noqa: S106

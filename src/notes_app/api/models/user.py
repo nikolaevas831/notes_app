@@ -6,5 +6,10 @@ class UserSchema(BaseModel):
     password: str
 
 
-class UserResponseSchema(BaseModel):
+class RegisterUserResponseSchema(BaseModel):
     username: str
+
+
+class LoggedInUserResponseSchema(BaseModel):
+    access_token: str
+    token_type: str
