@@ -9,18 +9,18 @@ from notes_app.infrastructure.task_queue.config import TaskQueueConfig
 from notes_app.infrastructure.task_queue.providers import setup_di_container
 
 
-def create_celery_app(config: TaskQueueConfig) -> Celery:
+def create_celery_app(task_queue_config: TaskQueueConfig) -> Celery:
     app = Celery(
-        broker=config.broker_url,
-        backend=config.backend_url,
-        timezone=config.timezone,
+        broker=task_queue_config.broker_url,
+        backend=task_queue_config.backend_url,
+        timezone=task_queue_config.timezone,
     )
-    app.autodiscover_tasks(config.path_to_tasks)
+    app.autodiscover_tasks(task_queue_config.path_to_tasks)
     return app
 
 
-def build_celery_app(task_scheduler_config: TaskQueueConfig, beat_schedule: dict) -> Celery:
-    app = create_celery_app(config=task_scheduler_config)
+def build_celery_app(task_queue_config: TaskQueueConfig, beat_schedule: dict) -> Celery:
+    app = create_celery_app(task_queue_config=task_queue_config)
     app.conf.beat_schedule = beat_schedule
     return app
 
@@ -40,19 +40,23 @@ def setup_di_for_celery_app(app: Celery, config: Config) -> None:
     setup_dishka(container=container, app=app)
 
 
+def run_command(log_level: str, celery_app: Celery, command: str) -> None:
+    match command:
+        case "worker":
+            celery_app.Worker(loglevel=log_level).start()
+        case "beat":
+            celery_app.Beat(loglevel=log_level).run()
+
+
 def main() -> None:
     config = load_config()
     beat_schedule = get_beat_schedule(
         schedule_delete_task=config.task_queue.crontab_schedule_delete_task
     )
     celery_app = build_celery_app(
-        task_scheduler_config=config.task_queue,
+        task_queue_config=config.task_queue,
         beat_schedule=beat_schedule,
     )
     setup_di_for_celery_app(app=celery_app, config=config)
     command = sys.argv[1]
-    match command:
-        case "worker":
-            celery_app.Worker(loglevel=config.logging.level).start()
-        case "beat":
-            celery_app.Beat(loglevel=config.logging.level).run()
+    run_command(log_level=config.logging.level, celery_app=celery_app, command=command)
