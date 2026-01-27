@@ -28,7 +28,7 @@ class TaskQueueConfig:
         return "notes_app.infrastructure.task_queue"
 
     # task schedule
-    schedule_delete_task: str = "0_0_*_*_*"
+    schedule_delete_task: str = "0_0_*_*_*"  # every day at midnight
 
     @property
     def crontab_schedule_delete_task(self) -> crontab:

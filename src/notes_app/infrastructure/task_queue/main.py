@@ -9,20 +9,18 @@ from notes_app.infrastructure.task_queue.config import TaskQueueConfig
 from notes_app.infrastructure.task_queue.providers import setup_di_container
 
 
-def create_celery_app(config: TaskQueueConfig, path_to_tasks: str) -> Celery:
+def create_celery_app(config: TaskQueueConfig) -> Celery:
     app = Celery(
         broker=config.broker_url,
         backend=config.backend_url,
         timezone=config.timezone,
     )
-    app.autodiscover_tasks([path_to_tasks])
+    app.autodiscover_tasks(config.path_to_tasks)
     return app
 
 
-def build_celery_app(
-    task_scheduler_config: TaskQueueConfig, path_to_tasks: str, beat_schedule: dict
-) -> Celery:
-    app = create_celery_app(config=task_scheduler_config, path_to_tasks=path_to_tasks)
+def build_celery_app(task_scheduler_config: TaskQueueConfig, beat_schedule: dict) -> Celery:
+    app = create_celery_app(config=task_scheduler_config)
     app.conf.beat_schedule = beat_schedule
     return app
 
@@ -49,7 +47,6 @@ def main() -> None:
     )
     celery_app = build_celery_app(
         task_scheduler_config=config.task_queue,
-        path_to_tasks=config.task_queue.path_to_tasks,
         beat_schedule=beat_schedule,
     )
     setup_di_for_celery_app(app=celery_app, config=config)
