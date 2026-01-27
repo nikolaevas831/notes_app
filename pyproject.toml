@@ -42,6 +42,7 @@ lint = [
 ]
 [project.scripts]
 notes_app = "notes_app.__main__:main"
+celery = "notes_app.infrastructure.task_queue.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -6,7 +6,7 @@ from notes_app.infrastructure.config import Config
 from notes_app.infrastructure.database.config import DBConfig
 from notes_app.infrastructure.logging.config import LoggingConfig
 from notes_app.infrastructure.notifier.config import NotifierConfig
-from notes_app.infrastructure.task_scheduler.config import TaskSchedulerConfig
+from notes_app.infrastructure.task_queue.config import TaskQueueConfig
 
 
 @pytest.fixture(scope="session")
@@ -27,7 +27,7 @@ def config() -> Config:
             async_driver="sqlite+aiosqlite",
             sync_driver="sqlite",
         ),
-        task_scheduler=TaskSchedulerConfig(host="localhost", port=6379, password=""),
+        task_queue=TaskQueueConfig(host="localhost", port=6379, password=""),
         notifier=NotifierConfig(bootstrap_servers="localhost:9092"),
         logging=LoggingConfig(level="DEBUG"),
     )

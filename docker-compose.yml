@@ -133,7 +133,7 @@ services:
       context: .
     env_file:
       - .env
-    command: celery -A notes_app.infrastructure.task_scheduler.main worker --loglevel=info
+    command: uv run celery worker
     depends_on:
       redis:
         condition: service_healthy
@@ -145,7 +145,7 @@ services:
       context: .
     env_file:
       - .env
-    command: celery -A notes_app.infrastructure.task_scheduler.main beat --loglevel=info
+    command: uv run celery beat
     depends_on:
       redis:
         condition: service_healthy

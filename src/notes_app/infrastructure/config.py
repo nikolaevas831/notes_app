@@ -6,14 +6,14 @@ from notes_app.infrastructure.auth.config import AuthConfig
 from notes_app.infrastructure.database.config import DBConfig
 from notes_app.infrastructure.logging.config import LoggingConfig
 from notes_app.infrastructure.notifier.config import NotifierConfig
-from notes_app.infrastructure.task_scheduler.config import TaskSchedulerConfig
+from notes_app.infrastructure.task_queue.config import TaskQueueConfig
 
 
 @dataclass
 class Config:
     auth: AuthConfig
     db: DBConfig
-    task_scheduler: TaskSchedulerConfig
+    task_queue: TaskQueueConfig
     notifier: NotifierConfig
     api: APIConfig
     logging: LoggingConfig
@@ -33,7 +33,7 @@ def load_config() -> Config:
             user=os.environ["POSTGRES_USER"],
             password=os.environ["POSTGRES_PASSWORD"],
         ),
-        task_scheduler=TaskSchedulerConfig(
+        task_queue=TaskQueueConfig(
             host=os.environ["REDIS_HOST"],
             port=int(os.environ["REDIS_PORT"]),
             password=os.environ["REDIS_PASSWORD"],
