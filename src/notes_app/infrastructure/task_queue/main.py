@@ -15,7 +15,7 @@ def create_celery_app(task_queue_config: TaskQueueConfig) -> Celery:
         backend=task_queue_config.backend_url,
         timezone=task_queue_config.timezone,
     )
-    app.autodiscover_tasks(task_queue_config.path_to_tasks)
+    app.autodiscover_tasks([task_queue_config.path_to_tasks])
     return app
 
 
