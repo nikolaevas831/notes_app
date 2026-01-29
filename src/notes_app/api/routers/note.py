@@ -22,7 +22,7 @@ from notes_app.application.usecases.note import (
     read_note as application_read_note,
 )
 
-router = APIRouter(prefix="/notes")
+router = APIRouter(prefix="/notes", tags=["notes"])
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

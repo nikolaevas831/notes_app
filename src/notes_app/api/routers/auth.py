@@ -27,7 +27,7 @@ from notes_app.application.interfaces.user_repo import UserRepoInterface
 from notes_app.application.usecases.auth import login as application_login
 from notes_app.application.usecases.user import create_user as application_create_user
 
-router = APIRouter(prefix="/auth")
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
