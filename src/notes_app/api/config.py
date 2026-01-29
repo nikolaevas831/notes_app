@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class APIConfig:
     host: str = "127.0.0.1"
     port: int = 8000
+    reload: bool = False
