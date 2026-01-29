@@ -4,23 +4,21 @@ import pytest
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from notes_app.api.routers.auth import router as auth_router
-from notes_app.api.routers.note import router as note_router
+from notes_app.api.main import build_api_app
 from notes_app.infrastructure.auth.jwt_token import JwtTokenImpl
 from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherImpl
-from notes_app.infrastructure.config import Config
 
 
 @pytest.fixture
-def app(config: Config, async_session_factory: async_sessionmaker) -> FastAPI:
-    app = FastAPI()
-    app.include_router(auth_router)
-    app.include_router(note_router)
-    passlib_hasher = PasslibHasherImpl()
-    jwt_token_service = JwtTokenImpl(auth_config=config.auth)
-    notifier = AsyncMock()
+def app(
+    async_session_factory: async_sessionmaker,
+    passlib_hasher: PasslibHasherImpl,
+    jwt_token: JwtTokenImpl,
+    notifier_mock: AsyncMock,
+) -> FastAPI:
+    app = build_api_app(lifespan=None)
     app.state.db_session_factory = async_session_factory
     app.state.passlib_hasher = passlib_hasher
-    app.state.jwt_token = jwt_token_service
-    app.state.notifier = notifier
+    app.state.jwt_token = jwt_token
+    app.state.notifier = notifier_mock
     return app
