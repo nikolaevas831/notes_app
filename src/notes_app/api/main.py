@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import _AsyncGeneratorContextManager, asynccontextmanager
+from functools import cached_property
 from typing import Protocol
 
 import uvicorn
@@ -21,23 +22,23 @@ class LifespanProtocol(Protocol):
 
 class APIStateDependency:
     def __init__(self, config: Config) -> None:
-        self.config = config
+        self._config = config
 
-    @property
+    @cached_property
     def db_connection(self) -> DBConnection:
-        return DBConnection(db_config=self.config.db)
+        return DBConnection(db_config=self._config.db)
 
-    @property
+    @cached_property
     def notifier(self) -> NotifierImpl:
-        return NotifierImpl(notifier_config=self.config.notifier)
+        return NotifierImpl(notifier_config=self._config.notifier)
 
-    @property
+    @cached_property
     def passlib_hasher(self) -> PasslibHasherImpl:
         return PasslibHasherImpl()
 
-    @property
+    @cached_property
     def jwt_token(self) -> JwtTokenImpl:
-        return JwtTokenImpl(auth_config=self.config.auth)
+        return JwtTokenImpl(auth_config=self._config.auth)
 
 
 def create_lifespan(
