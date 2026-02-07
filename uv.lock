@@ -546,14 +546,16 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "faker" },
     { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
 ]
 lint = [
     { name = "mypy" },
     { name = "ruff" },
+]
+test = [
+    { name = "faker" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
 ]
 
 [package.metadata]
@@ -563,7 +565,7 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.15.2" },
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "bcrypt", specifier = "==4.0.1" },
-    { name = "celery", extras = ["asyncio"], specifier = ">=5.5.3" },
+    { name = "celery", specifier = ">=5.5.3" },
     { name = "datetime", specifier = ">=5.5" },
     { name = "dishka", specifier = ">=1.7.2" },
     { name = "fastapi", specifier = ">=0.115.12" },
@@ -581,15 +583,15 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [
-    { name = "faker", specifier = ">=40.1.2" },
-    { name = "pre-commit", specifier = "==4.3" },
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "pytest-asyncio", specifier = ">=1.3.0" },
-]
+dev = [{ name = "pre-commit", specifier = "==4.3" }]
 lint = [
     { name = "mypy", specifier = ">=1.19.1" },
     { name = "ruff", specifier = ">=0.11.10" },
+]
+test = [
+    { name = "faker", specifier = ">=40.1.2" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pytest-asyncio", specifier = ">=1.3.0" },
 ]
 
 [[package]]

@@ -9,7 +9,7 @@ dependencies = [
     "alembic>=1.15.2",
     "asyncpg>=0.30.0",
     "bcrypt==4.0.1",
-    "celery[asyncio]>=5.5.3",
+    "celery>=5.5.3",
     "datetime>=5.5",
     "dishka>=1.7.2",
     "fastapi>=0.115.12",
@@ -31,15 +31,19 @@ build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
-    "faker>=40.1.2",
+
     "pre-commit==4.3",
+]
+test = [
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
+    "faker>=40.1.2",
 ]
 lint = [
     "mypy>=1.19.1",
     "ruff>=0.11.10",
 ]
+
 [project.scripts]
 notes_app = "notes_app.__main__:main"
 celery = "notes_app.infrastructure.task_queue.main:main"

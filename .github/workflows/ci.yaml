@@ -26,7 +26,7 @@ jobs:
             ./.venv
             ~/.local/share/uv
           key: venv-${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
-  ruff:
+  lint:
     needs: setup
     runs-on: ubuntu-latest
     steps:
@@ -38,7 +38,19 @@ jobs:
             ./.venv
             ~/.local/share/uv
           key: venv-${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
-      - name: Lint with ruff check
-        run: ./.venv/bin/ruff check
-      - name: Lint with ruff format
-        run: ./.venv/bin/ruff format --check
+      - name: Lint with pre-commit
+        run: ./.venv/bin/pre-commit run --all-files
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore cached venv
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./.venv
+            ~/.local/share/uv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
+      - name: Run tests with pytest
+        run: ./.venv/bin/pytest
