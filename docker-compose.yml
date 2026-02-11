@@ -56,27 +56,21 @@ services:
         condition: service_healthy
 
   init-topics:
-    image: confluentinc/cp-kafka:7.5.0
+    build:
+      context: .
+    env_file:
+      - .env
     depends_on:
       kafka:
         condition: service_healthy
-    entrypoint: ["/bin/bash", "-c"]
-    command: |
-      "
-      sleep 5
-      echo -e 'Creating kafka topics'
-      /usr/bin/kafka-topics --create --topic note.created --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
-      /usr/bin/kafka-topics --create --topic note.deleted --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
-      echo -e 'Successfully created the following topics:'
-      /usr/bin/kafka-topics --bootstrap-server kafka:9092 --list
-      "
+    command: python -m notes_app.infrastructure.notifier.init_topics
+
   alembic_migration:
     build:
       context: .
     env_file:
       - .env
-    command: >
-      sh -c "alembic upgrade head"
+    command: alembic upgrade head
     restart: "no"
     depends_on:
       postgres:
@@ -93,8 +87,7 @@ services:
         condition: service_completed_successfully
     env_file:
       - .env
-    command: >
-      sh -c "uv run notes_app"
+    command: python -m notes_app
     ports:
       - "8000:8000"
 
@@ -104,7 +97,7 @@ services:
     env_file:
       - .env
     ports:
-      - "6380:6379"
+      - "6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 5s
@@ -118,8 +111,8 @@ services:
     env_file:
       - .env
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
       - REDISINSIGHT_HOST=0.0.0.0
       - REDISINSIGHT_ACCEPT_LICENSE=true
     ports:
@@ -133,7 +126,7 @@ services:
       context: .
     env_file:
       - .env
-    command: uv run celery worker
+    command: python -m notes_app.infrastructure.task_queue worker
     depends_on:
       redis:
         condition: service_healthy
@@ -145,7 +138,7 @@ services:
       context: .
     env_file:
       - .env
-    command: uv run celery beat
+    command: python -m notes_app.infrastructure.task_queue beat
     depends_on:
       redis:
         condition: service_healthy

@@ -13,7 +13,8 @@ from notes_app.infrastructure.auth.jwt_token import JwtTokenImpl
 from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherImpl
 from notes_app.infrastructure.config import Config
 from notes_app.infrastructure.database.main import DBConnection
-from notes_app.infrastructure.notifier.main import NotifierImpl
+from notes_app.infrastructure.notifier.main import create_kafka_producer
+from notes_app.infrastructure.notifier.producer import NotifierImpl
 
 
 class LifespanProtocol(Protocol):
@@ -30,7 +31,10 @@ class APIStateDependency:
 
     @cached_property
     def notifier(self) -> NotifierImpl:
-        return NotifierImpl(notifier_config=self._config.notifier)
+        return NotifierImpl(
+            notifier_config=self._config.notifier,
+            producer=create_kafka_producer(notifier_config=self._config.notifier),
+        )
 
     @cached_property
     def passlib_hasher(self) -> PasslibHasherImpl:

@@ -60,3 +60,7 @@ def main() -> None:
     setup_di_for_celery_app(app=celery_app, config=config)
     command = sys.argv[1]
     run_command(log_level=config.logging.level, celery_app=celery_app, command=command)
+
+
+if __name__ == "__main__":
+    main()

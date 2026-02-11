@@ -12,7 +12,7 @@ from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherImpl
 from notes_app.infrastructure.database.repositories.note import NoteRepo
 from notes_app.infrastructure.database.repositories.user import UserRepo
 from notes_app.infrastructure.database.tx_manager import TxManagerImlp
-from notes_app.infrastructure.notifier.main import NotifierImpl
+from notes_app.infrastructure.notifier.producer import NotifierImpl
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
