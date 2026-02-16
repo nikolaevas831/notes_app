@@ -6,7 +6,7 @@ from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 from notes_app.infrastructure.notifier.config import NotifierConfig
 
 
-class NotifierTopicManager:
+class NotifierTopicBuilder:
     def __init__(self, notifier_config: NotifierConfig, admin_client: AIOKafkaAdminClient) -> None:
         self._config = notifier_config
         self._admin_client = admin_client

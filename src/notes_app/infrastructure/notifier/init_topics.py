@@ -2,15 +2,15 @@ import asyncio
 
 from notes_app.infrastructure.config import load_config
 from notes_app.infrastructure.notifier.main import create_kafka_admin_client
-from notes_app.infrastructure.notifier.topic_manager import NotifierTopicManager
+from notes_app.infrastructure.notifier.topic_manager import NotifierTopicBuilder
 
 
 async def init_notifier_topics() -> None:
     config = load_config()
-    notifier_topic_manager = NotifierTopicManager(
+    notifier_topic_builder = NotifierTopicBuilder(
         notifier_config=config.notifier, admin_client=create_kafka_admin_client(config.notifier)
     )
-    async with notifier_topic_manager as tm:
+    async with notifier_topic_builder as tm:
         await tm.create_all_topics()
 
 

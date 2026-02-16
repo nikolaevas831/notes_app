@@ -4,6 +4,7 @@ from functools import cached_property
 from typing import Protocol
 
 import uvicorn
+from aiokafka import AIOKafkaProducer
 from fastapi import FastAPI
 
 from notes_app.api.config import APIConfig
@@ -30,10 +31,14 @@ class APIStateDependency:
         return DBConnection(db_config=self._config.db)
 
     @cached_property
+    def kafka_producer(self) -> AIOKafkaProducer:
+        return create_kafka_producer(notifier_config=self._config.notifier)
+
+    @cached_property
     def notifier(self) -> NotifierImpl:
         return NotifierImpl(
             notifier_config=self._config.notifier,
-            producer=create_kafka_producer(notifier_config=self._config.notifier),
+            producer=self.kafka_producer,
         )
 
     @cached_property
