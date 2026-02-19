@@ -9,6 +9,7 @@ from fastapi import FastAPI
 
 from notes_app.api.config import APIConfig
 from notes_app.api.routers.auth import router as auth_router
+from notes_app.api.routers.health import router as health_router
 from notes_app.api.routers.note import router as note_router
 from notes_app.infrastructure.auth.jwt_token import JwtTokenImpl
 from notes_app.infrastructure.auth.passlib_hasher import PasslibHasherImpl
@@ -84,4 +85,5 @@ def build_api_app(lifespan: LifespanProtocol | None) -> FastAPI:
     app = FastAPI(lifespan=lifespan)
     app.include_router(auth_router)
     app.include_router(note_router)
+    app.include_router(health_router)
     return app
