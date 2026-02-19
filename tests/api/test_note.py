@@ -7,6 +7,7 @@ from notes_app.api.models.user import LoggedInUserResponseSchema
 
 pytestmark = pytest.mark.api
 
+
 @pytest.mark.asyncio
 async def test_create_note(
     client: httpx.AsyncClient,

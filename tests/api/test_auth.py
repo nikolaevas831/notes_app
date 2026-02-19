@@ -6,6 +6,7 @@ from notes_app.api.models.user import UserSchema
 
 pytestmark = pytest.mark.api
 
+
 @pytest.mark.asyncio
 async def test_register_user(client: httpx.AsyncClient, user_schema: UserSchema) -> None:
     response = await client.post(url="/auth/register", json=user_schema.model_dump())
