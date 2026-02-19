@@ -8,7 +8,11 @@ from notes_app.infrastructure.notifier.config import NotifierConfig
 
 
 class NotifierImpl(NotifierInterface):
-    def __init__(self, notifier_config: NotifierConfig, producer: AIOKafkaProducer) -> None:
+    def __init__(
+        self,
+        notifier_config: NotifierConfig,
+        producer: AIOKafkaProducer,
+    ) -> None:
         self._config = notifier_config
         self._producer = producer
 
@@ -20,12 +24,12 @@ class NotifierImpl(NotifierInterface):
 
     async def notify_note_created(self, note: NoteDTO) -> None:
         await self._producer.send_and_wait(
-            topic=self._config.note_created_topic_name, value=self._serialize_note(note)
+            topic=self._config.kafka_topics_names.note_created, value=self._serialize_note(note)
         )
 
     async def notify_note_deleted(self, note: NoteDTO) -> None:
         await self._producer.send_and_wait(
-            topic=self._config.note_deleted_topic_name, value=self._serialize_note(note)
+            topic=self._config.kafka_topics_names.note_deleted, value=self._serialize_note(note)
         )
 
     def _serialize_note(self, note: NoteDTO) -> bytes:

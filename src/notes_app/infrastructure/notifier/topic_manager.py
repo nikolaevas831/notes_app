@@ -25,17 +25,12 @@ class NotifierTopicBuilder:
             await self._admin_client.close()
 
     async def create_all_topics(self) -> None:
-        await self._admin_client.create_topics(
-            [
-                NewTopic(
-                    name=self._config.note_created_topic_name,
-                    num_partitions=self._config.note_created_topic_num_partitions,
-                    replication_factor=self._config.note_created_topic_replication_factor,
-                ),
-                NewTopic(
-                    name=self._config.note_deleted_topic_name,
-                    num_partitions=self._config.note_deleted_topic_num_partitions,
-                    replication_factor=self._config.note_deleted_topic_replication_factor,
-                ),
-            ]
-        )
+        new_topics = [
+            NewTopic(
+                name=item.name,
+                num_partitions=item.num_partitions,
+                replication_factor=item.replication_factor,
+            )
+            for item in self._config.kafka_topics.values()
+        ]
+        await self._admin_client.create_topics(new_topics)
